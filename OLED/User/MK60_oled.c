@@ -6,7 +6,6 @@
  */
 
 #include "MK60_oled.h"
-#include "MK60_gpio.h"
 #include "charcode.h"
 
 static void OLED_WriteDat(uint8_t data);
@@ -17,7 +16,7 @@ static void OLED_PinInit(void);
 /*!
 *  @描述       OLED显示屏清屏函数
 *  @参数       color       0x00为全暗，0xff为全亮
-*  示例:       OLED_ClearScreen (0x00);
+*  示例:       OLED_ClearScreen(0x00);
 */
 void OLED_ClearScreen(uint8_t color)
 {
@@ -40,14 +39,9 @@ void OLED_Init (void)
 {
   OLED_PinInit();
   
-  OLED_SCLH;	
   OLED_RSTL; //初始化OLED
   
-  for(int temp = 0 ; temp < 50; ++temp) //延时
-	{
-		int a = 222;
-    while(a--);
-	}
+  for(int temp = 0; temp < 999999; ++temp){} //延时
 
   OLED_RSTH;
   
@@ -79,7 +73,7 @@ void OLED_Init (void)
   OLED_WriteCmd(0xa4);// Disable Entire Display On (0xa4/0xa5)
   OLED_WriteCmd(0xa6);// Disable Inverse Display On (0xa6/a7) 
   OLED_WriteCmd(0xAF);//--turn on oled panel
-  OLED_ClearScreen(BLACK);
+  OLED_ClearScreen(OLED_BLACK);
   OLED_SetPos(0, 0);
 }
 
@@ -88,7 +82,7 @@ void OLED_Init (void)
 *  @参数       x       显示位置的横坐标(0~127)
 *  @参数       y       显示位置的纵坐标(0~7)
 *  @参数       data1   待显示的字符
-*  示例:       OLED_P6x8Char (0, 0, 'H');    //在屏幕(0,0)位置显示 H
+*  示例:       OLED_P6x8Char(0, 0, 'H');    //在屏幕(0,0)位置显示 H
 */
 void OLED_P6x8Char(uint8_t x, uint8_t y, char ch)
 {
@@ -109,10 +103,10 @@ void OLED_P6x8Char(uint8_t x, uint8_t y, char ch)
 
 /*!
 *  @描述       显示一个6x8的字符串
-*  @参数       x       显示位置的横坐标(0~127)
-*  @参数       y       显示位置的纵坐标(0~7)
-*  @参数       data1   待显示的字符串
-*  示例:       OLED_P6x8Str (0, 0, "HELLO");    //在屏幕(0,0)位置显示 HELLO
+*              x       显示位置的横坐标(0~127)
+               y       显示位置的纵坐标(0~7)
+               data1   待显示的字符串
+*  示例:       OLED_P6x8Str(0, 0, "HELLO");    //在屏幕(0,0)位置显示 HELLO
 */
 void OLED_P6x8Str(uint8_t x, uint8_t y, const char *ch)
 {
@@ -176,6 +170,7 @@ void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
   result[4] = (uint8_t)((data1 % 100) / 10 + '0');
   result[5] = (uint8_t)((data1 % 10) / 1 + '0');
   result[6] = '\0';
+	
   if(set < 0)
   {
     result[5 + set] = result[0];
@@ -193,9 +188,9 @@ void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
 *  @参数       y       显示位置的纵坐标(0~7)
 *  @参数       data1   待显示的浮点数
 *  @参数       set     显示浮点数的整数位位数，如果该参数带负号，则显示结果有符号，若为0则自动调整合适的显示值
-*  示例:       OLED_P6x8Flo (0, 0, 100.0/3, 3);    //在屏幕(0,0)位置显示 033.33
-               OLED_P6x8Flo (0, 0, 100.0/3, -3);   //在屏幕(0,0)位置显示 +033.33
-               OLED_P6x8Flo (0, 0, 100.0/3, 0);    //在屏幕(0,0)位置显示 33.33
+*  示例:       OLED_P6x8Flo(0, 0, 100.0/3, 3);    //在屏幕(0,0)位置显示 033.33
+               OLED_P6x8Flo(0, 0, 100.0/3, -3);   //在屏幕(0,0)位置显示 +033.33
+               OLED_P6x8Flo(0, 0, 100.0/3, 0);    //在屏幕(0,0)位置显示 33.33
 */
 void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set)
 {
@@ -253,7 +248,7 @@ void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set)
 *  @参数       x       显示位置的横坐标(0~127)
 *  @参数       y       显示位置的纵坐标(0~6)
 *  @参数       ch      待显示的字符
-*  示例:       OLED_P8x16Char (0, 0, 'H');    //在屏幕(0,0)位置显示 H
+*  示例:       OLED_P8x16Char(0, 0, 'H');    //在屏幕(0,0)位置显示 H
 */
 void OLED_P8x16Char(uint8_t x, uint8_t y, char ch)
 {
@@ -283,7 +278,7 @@ void OLED_P8x16Char(uint8_t x, uint8_t y, char ch)
 *  @参数       x       显示位置的横坐标(0~127)
 *  @参数       y       显示位置的纵坐标(0~6)
 *  @参数       ch      待显示的字符串
-*  示例:       gpio_init (0, 0, "HELLO");    //在屏幕(0,0)位置显示 HELLO
+*  示例:       OLED_P8x16Str(0, 0, "HELLO");    //在屏幕(0,0)位置显示 HELLO
 */
 void OLED_P8x16Str(uint8_t x, uint8_t y, const char *ch)
 {
@@ -316,7 +311,7 @@ void OLED_P8x16Str(uint8_t x, uint8_t y, const char *ch)
 *  @参数       x       显示位置的横坐标(0~127)
 *  @参数       y       显示位置的纵坐标(0~6)
 *  @参数       ch      待显示的字符串
-*  示例:       gpio_init (0, 0, "你好");    //在屏幕(0,0)位置显示 你好
+*  示例:       OLED_P14x16CHCHAR(0, 0, "你好");    //在屏幕(0,0)位置显示 你好
 *  注意        显示汉字时需要用文字取模软件取模字体，取模时设置为 宋体五号，纵向取模，字节倒叙，再添加至charcode.h中的Word14x16数组中方可使用
 */
 void OLED_P14x16CHCHAR(uint8_t x, uint8_t y, const char *ch)
@@ -358,7 +353,7 @@ void OLED_P14x16CHCHAR(uint8_t x, uint8_t y, const char *ch)
 *  @参数       x1      显示位置的终横坐标(0~127)
 *  @参数       y1      显示位置的终点纵坐标(0~7)
 *  @参数       bmp     待显示的图片
-*  示例:       gpio_init (0, 0, 100, 6, bmp);    //在屏幕(0,0)位置显示一个大小为100 * 48 的图片
+*  示例:       OLED_PrintBMP(0, 0, 100, 6, bmp);    //在屏幕(0,0)位置显示一个大小为100 * 48 的图片
 *  注意:       显示图片时需要用图像取模软件取模，取模时设置为 数据水平，字节垂直，单色，最大尺寸128 * 64，字节内像素数据反序
 */
 void OLED_PrintBMP(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, const char bmp[])
@@ -380,7 +375,7 @@ void OLED_PrintBMP(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, const char bm
 *  @参数       size_x		原图片的X大小
 *  @参数       size_y		原图片的Y大小
 *  @参数       binary		待显示的二值化图片
-*  示例:       gpio_init (94, 60, Binary);    //在屏幕(0,0)位置显示一个大小为96 * 60 的图片
+*  示例:       OLED_PrintBinary(94, 60, Binary);    //在屏幕(0,0)位置显示一个大小为96 * 60 的图片
 */
 void OLED_PrintBinary(uint16_t size_x, uint16_t size_y, uint8_t* binary)
 {
@@ -411,7 +406,7 @@ void OLED_PrintBinary(uint16_t size_x, uint16_t size_y, uint8_t* binary)
 #define OLED_SPI_SEND_DATA(x) SPI_SendDataHardware(OLED_SPI, x)
 #endif
 
-static void OLED_PinInit(void)
+static void OLED_PinInit(void) //初始化
 {
   OLED_SPI_INIT();
   gpio_init(OLED_RES_Pin, GPO, 1);

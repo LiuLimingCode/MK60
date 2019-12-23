@@ -48,6 +48,7 @@
 #include "MK60_sdhc.h"
 
 #include "MK60_tft.h"
+#include "MK60_myspi.h"
 
 #include "isr.h"
 

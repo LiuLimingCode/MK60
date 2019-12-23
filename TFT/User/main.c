@@ -7,7 +7,7 @@ int main(void)
 	gpio_init(A14, GPO, 0);
 	
 	TFT_Init();
-	TFT_ClearScreen(GBP454_YELLOW);
+	TFT_ClearScreen(TFT_GBP454_YELLOW);
 	
 	while(1);
 }
