@@ -1,0 +1,62 @@
+/*!
+ * @file       fxas2100.c
+ * @brief      fxas2100函数实现
+ * @author     刘力铭
+ */
+#include "MK60_fxas2100.h"
+#include "MK60_myiic.h"
+#include <math.h>
+
+/************************************************************************/
+//函数:FXAS2100初始化函数
+//返回:0 = 成功,其他 = 失败
+/************************************************************************/
+uint8_t FXAS2100_Init(void)
+{
+	uint8 IIC_ID; 
+  IIC_Init();
+	if(IIC_ReadRegister(FXAS2100_ADDR, FXAS2100_WHO_AM_I, &IIC_ID))return ERR_IIC_CHECKACK_FAIL;
+	if(IIC_ID != 0xD7)return ERR_IIC_CHECKACK_FAIL;
+	IIC_WriteRegister(FXAS2100_ADDR, FXAS2100_CTRL_REG1, FXAS2100_RST);
+	systick_delay_ms(10);
+  if(IIC_WriteRegister(FXAS2100_ADDR, FXAS2100_CTRL_REG0, FXAS2100_FS_2000))return ERR_IIC_CHECKACK_FAIL;
+  if(IIC_WriteRegister(FXAS2100_ADDR, FXAS2100_CTRL_REG1, FXAS2100_DR_200HZ | FXAS2100_MODE_ACTIVE))return ERR_IIC_CHECKACK_FAIL;
+  return NO_ERR;
+}
+
+/************************************************************************/
+//函数:FXAS2100读取数据
+//参数:FXAS2100_DATA_TypeDef 读取数据的类型，data 为读取数据存放的地址
+//返回:0 = 成功,其他 = 失败
+/************************************************************************/
+uint8_t FXAS2100_ReadData(FXAS2100_DATA_TypeDef Data_Type, int16_t *data)
+{
+	uint8_t Register_Arr;
+	uint8_t dat_h, dat_l;
+	Register_Arr = FXAS2100_OUT_X_MSB + Data_Type * 2;
+	if(IIC_ReadRegister(FXAS2100_ADDR, Register_Arr, &dat_h))return ERR_IIC_CHECKACK_FAIL;
+	if(IIC_ReadRegister(FXAS2100_ADDR, Register_Arr + 1, &dat_l))return ERR_IIC_CHECKACK_FAIL;
+	*data = (int16_t)((dat_h << 8) | dat_l);
+	return NO_ERR;
+}
+
+/************************************************************************/
+//函数:FXAS2100读取三轴数据
+//参数:GXdata X轴角速度数据存放地址 GYdata Y轴角速度数据存放地址
+//		 GZdata Z轴角速度数据存放地址
+//返回:0 = 成功,其他 = 失败
+/************************************************************************/
+uint8_t FXAS2100_ReadALLData(int16_t *GXdata, int16_t *GYdata, int16_t *GZdata)
+{
+	uint8_t dat_h, dat_l;
+	if(IIC_ReadRegister(FXAS2100_ADDR, FXAS2100_OUT_X_MSB, &dat_h))return ERR_IIC_CHECKACK_FAIL;
+	if(IIC_ReadRegister(FXAS2100_ADDR, FXAS2100_OUT_X_LSB, &dat_l))return ERR_IIC_CHECKACK_FAIL;
+	*GXdata = (int16_t)((dat_h << 8) | dat_l);
+	if(IIC_ReadRegister(FXAS2100_ADDR, FXAS2100_OUT_Y_MSB, &dat_h))return ERR_IIC_CHECKACK_FAIL;
+	if(IIC_ReadRegister(FXAS2100_ADDR, FXAS2100_OUT_Y_LSB, &dat_l))return ERR_IIC_CHECKACK_FAIL;
+	*GYdata = (int16_t)((dat_h << 8) | dat_l);
+	if(IIC_ReadRegister(FXAS2100_ADDR, FXAS2100_OUT_Z_MSB, &dat_h))return ERR_IIC_CHECKACK_FAIL;
+	if(IIC_ReadRegister(FXAS2100_ADDR, FXAS2100_OUT_Z_LSB, &dat_l))return ERR_IIC_CHECKACK_FAIL;
+	*GZdata = (int16_t)((dat_h << 8) | dat_l);
+	return NO_ERR;
+}
