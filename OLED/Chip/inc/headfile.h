@@ -7,7 +7,7 @@
  * 以下所有内容版权均属逐飞科技所有，未经允许不得用于商业用途，
  * 欢迎各位使用并传播本程序，修改内容时必须保留逐飞科技的版权声明。
  *
- * @file       		MK60_uart
+ * @file       		headfile
  * @company	   		成都逐飞科技有限公司
  * @author     		Go For It(1325536866)
  * @version    		v2.0
@@ -16,44 +16,40 @@
  * @Taobao   		https://seekfree.taobao.com/
  * @date       		2017-09-19
  ********************************************************************************************************************/
- 
- 
- 
-#ifndef _MK60_uart_h
-#define _MK60_uart_h
 
 
 
-#include "misc.h"
-#include "common.h"
-#include "MK60_port.h"
-#include "MK60_gpio.h"
+#ifndef _headfile_h
+#define _headfile_h
+
+
 #include "MK60_port_cfg.h"
+#include "common.h"
+#include "misc.h"
 #include "stdio.h"
 
-typedef enum
-{
-    uart0,
-    uart1,
-    uart2,
-    uart3,
-    uart4,
-    uart5,
-} UARTn;
+//--------函数库--------
+#include "MK60_rtc.h"
+#include "MK60_gpio.h"
+#include "MK60_systick.h"
+#include "MK60_port.h"
+#include "MK60_uart.h"
+#include "MK60_pit.h"
+#include "MK60_lptmr.h"
+#include "MK60_ftm.h"
+#include "MK60_adc.h"
+#include "MK60_dac.h"
+#include "MK60_flash.h"
+#include "MK60_spi.h"
+#include "MK60_i2c.h"
+#include "MK60_wdog.h"
+#include "MK60_dma.h"
+#include "MK60_cmt.h"
+#include "MK60_sdhc.h"
 
+#include "MK60_oled.h"
+#include "MK60_myspi.h"
 
-#define DEBUG_PORT  uart2
-#define DEBUG_BAUD  115200
-
-void uart_init(UARTn uartn, uint32 baud);
-void uart_putchar (UARTn uartn, uint8 ch);
-void uart_putbuff (UARTn uartn, uint8 *buff, uint32 len);
-void uart_putstr (UARTn uartn, const uint8 *str);
-void uart_getchar (UARTn uartn, uint8 *ch);
-char uart_querychar (UARTn uartn, uint8 *ch);
-void uart_rx_irq_en(UARTn uartn);
-void uart_txc_irq_en(UARTn uartn);
-void uart_rx_irq_dis(UARTn uartn);
-void uart_txc_irq_dis(UARTn uartn);
+#include "isr.h"
 
 #endif

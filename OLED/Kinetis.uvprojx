@@ -47,7 +47,7 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\Objects\</OutputDirectory>
+          <OutputDirectory>.\Outputs\</OutputDirectory>
           <OutputName>Kinetis</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
@@ -398,6 +398,11 @@
               <FileName>MK60_oled.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\MK60_oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_myspi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\MK60_myspi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -953,6 +958,11 @@
               <FileName>MK60_oled.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\MK60_oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_myspi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\MK60_myspi.c</FilePath>
             </File>
           </Files>
         </Group>

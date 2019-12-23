@@ -1,36 +1,18 @@
 /*!
- * @file       oled.c
- * @brief      OLED函数实现(SPI)
- * @author     llm
- * @注意：区别于普通的OLED底层基于软件模拟SPI，这个底层基于K60硬件SPI编写。
-          优点是通讯速度远远大于前者(大概10倍)，CPU占用率远远小于前者。
-    但是！务必确保电路设计时，OLED连接的SCK、SDA(D0,D1)选为PORT_cfg.h中的SPI固定引脚。(非常重要！！！)
-          电路设计时在选择SPIX_SCK SPIX_SOUT 后最好不要再使用对应的SPIX_SIN引脚，因为该引脚会在SPI底层中配置为输入模式
-          该底层涉及大量寄存器操作，故基本不允许跨芯片移植程序，如K60程序移植到KEA128芯片后该底层无法使用。(普通OLED底层移植性好)
+ * @文件       oled.c
+ * @功能       OLED函数实现
+ * @作者       刘力铭
+ * @完成时间   2019-12
  */
 
 #include "MK60_oled.h"
 #include "MK60_gpio.h"
-#include "MK60_spi.h"
 #include "charcode.h"
 
+static void OLED_WriteDat(uint8_t data);
+static void OLED_WriteCmd(uint8_t cmd);
 static void OLED_SetPos(uint8_t x, uint8_t y);
 static void OLED_PinInit(void);
-static void OLED_DLY_ms(uint16_t ms);
-__STATIC_INLINE void SPI_Init(void);
-__STATIC_INLINE void OLED_WriteCmd(uint8 cmd);
-__STATIC_INLINE void OLED_WriteDat(uint8 data);
-
-/*!
-*  @描述       OLED显示屏清屏函数
-*  @参数       NewState       0x00为关OLED，0x01为开OLED
-*  示例:       OLED_Cmd (0x00);
-*/
-void OLED_Cmd(char NewState)
-{
-  if(NewState != 0) NewState = 1;
-  OLED_WriteCmd(0xAE | NewState);
-}
 
 /*!
 *  @描述       OLED显示屏清屏函数
@@ -39,32 +21,37 @@ void OLED_Cmd(char NewState)
 */
 void OLED_ClearScreen(uint8_t color)
 {
-  uint16_t y,x;	
-  for(y=0; y < OLED_PAGE_MAX; y++)
+  uint16_t y, x;	
+  for(y = 0; y < OLED_PAGE_MAX; ++y)
   {
     OLED_WriteCmd(0xb0 + y);
     OLED_WriteCmd(0x01);
     OLED_WriteCmd(0x10); 
-    for(x=0; x < OLED_X_MAX; x++)
+    for( x= 0; x < OLED_X_MAX; ++x)
       OLED_WriteDat(color);
   }
 }
 
 /*!
 *  @描述       OLED初始化
-*  示例:       OLED_Init ();
+*  示例:       OLED_Init();
 */
 void OLED_Init (void)
 {
   OLED_PinInit();
-  SPI_Init();
-	
+  
+  OLED_SCLH;	
   OLED_RSTL; //初始化OLED
-        
-  OLED_DLY_ms(50);
-  OLED_RSTH;
+  
+  for(int temp = 0 ; temp < 50; ++temp) //延时
+	{
+		int a = 222;
+    while(a--);
+	}
 
-  OLED_Cmd(0);//--turn off oled panel
+  OLED_RSTH;
+  
+  OLED_WriteCmd(0xAE);//--turn off oled panel
   OLED_WriteCmd(0x00);//---set low column address
   OLED_WriteCmd(0x10);//---set high column address
   OLED_WriteCmd(0x40);//--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)
@@ -91,7 +78,7 @@ void OLED_Init (void)
   OLED_WriteCmd(0x14);//--set(0x10) disable
   OLED_WriteCmd(0xa4);// Disable Entire Display On (0xa4/0xa5)
   OLED_WriteCmd(0xa6);// Disable Inverse Display On (0xa6/a7) 
-  OLED_Cmd(1);//--turn on oled panel
+  OLED_WriteCmd(0xAF);//--turn on oled panel
   OLED_ClearScreen(BLACK);
   OLED_SetPos(0, 0);
 }
@@ -101,23 +88,23 @@ void OLED_Init (void)
 *  @参数       x       显示位置的横坐标(0~127)
 *  @参数       y       显示位置的纵坐标(0~7)
 *  @参数       data1   待显示的字符
-*  示例:       gpio_init (0, 0, 'H');    //在屏幕(0,0)位置显示 H
+*  示例:       OLED_P6x8Char (0, 0, 'H');    //在屏幕(0,0)位置显示 H
 */
 void OLED_P6x8Char(uint8_t x, uint8_t y, char ch)
 {
   uint8_t c = 0, i = 0; 
-  c =ch-32;
-  if(x>126)
+  c = ch - 32;
+  if(x> OLED_X_MAX - 6)
   {
-    x=0;
-    y++;
+    x = 0;
+    ++y;
   }
-  OLED_SetPos(x,y);    
-  for(i=0;i<6;i++)
+  OLED_SetPos(x, y);    
+  for(i = 0; i < 6; ++i)
   {     
     OLED_WriteDat(F6x8[c][i]);  
   }
-  x+=6;
+  x += 6;
 }
 
 /*!
@@ -125,26 +112,26 @@ void OLED_P6x8Char(uint8_t x, uint8_t y, char ch)
 *  @参数       x       显示位置的横坐标(0~127)
 *  @参数       y       显示位置的纵坐标(0~7)
 *  @参数       data1   待显示的字符串
-*  示例:       gpio_init (0, 0, "HELLO");    //在屏幕(0,0)位置显示 HELLO
+*  示例:       OLED_P6x8Str (0, 0, "HELLO");    //在屏幕(0,0)位置显示 HELLO
 */
 void OLED_P6x8Str(uint8_t x, uint8_t y, const char *ch)
 {
   uint8_t c = 0, i = 0, j = 0;      
-  while (ch[j]!='\0')
+  while (ch[j] != '\0')
   {    
-    c =ch[j]-32;
-    if(x>126)
+    c = ch[j] - 32;
+    if(x > OLED_X_MAX - 6)
     {
-      x=0;
-      y++;
+      x = 0;
+      ++y;
     }
-    OLED_SetPos(x,y);    
-    for(i=0;i<6;i++)
+    OLED_SetPos(x, y);    
+    for(i = 0; i < 6; ++i)
     {     
       OLED_WriteDat(F6x8[c][i]);  
     }
-    x+=6;
-    j++;
+    x += 6;
+    ++j;
   }
 }
 
@@ -153,14 +140,27 @@ void OLED_P6x8Str(uint8_t x, uint8_t y, const char *ch)
 *  @参数       x       显示位置的横坐标(0~127)
 *  @参数       y       显示位置的纵坐标(0~7)
 *  @参数       data1   待显示的整数
-*  @参数       set     显示整数位位数，如果该参数带负号，则显示结果有符号
-*  示例:       gpio_init (0, 0, 123, 4);    //在屏幕(0,0)位置显示 0123
-               gpio_init (0, 0, -123, -3);    //在屏幕(0,0)位置显示 -123
+*  @参数       set     显示整数位位数，如果该参数带负号，则显示结果有符号，若为0则自动调整合适的显示值
+*  示例:       OLED_P6x8Int(0, 0, 123, 4);     //在屏幕(0,0)位置显示 0123
+               OLED_P6x8Int(0, 0, -123, -3);   //在屏幕(0,0)位置显示 -123
+               OLED_P6x8Int(0, 0, 12, 0);      //在屏幕(0,0)位置显示 12
+               OLED_P6x8Int(0, 0, -123, 0);    //在屏幕(0,0)位置显示 -123
 */
 void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
 {
-  uint8_t result[7];
-  if(data1<0)
+  uint8_t result[7] = {0};
+	
+	if(set > 5) set = 5; //int16整数最多显示5位
+	if(set < -5) set = -5;
+	
+	if(set == 0) 
+	{
+		int16_t temp = data1;
+		for(set = 1; temp /= 10 != 0; ++set);
+		if(data1 < 0) set *= -1;
+	}
+	
+  if(data1 < 0)
   {
     data1 *= -1;
     result[0] = '-';
@@ -169,11 +169,12 @@ void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
   {
     result[0] = '+';
   }
-  result[1] = (uint8_t)((data1%100000)/10000+48);
-  result[2] = (uint8_t)((data1%10000)/1000+48);
-  result[3] = (uint8_t)((data1%1000)/100+48);
-  result[4] = (uint8_t)((data1%100)/10+48);
-  result[5] = (uint8_t)(data1%10+48);
+	
+  result[1] = (uint8_t)((data1 % 100000) / 10000 + '0');
+  result[2] = (uint8_t)((data1 % 10000) / 1000 + '0');
+  result[3] = (uint8_t)((data1 % 1000) / 100 + '0');
+  result[4] = (uint8_t)((data1 % 100) / 10 + '0');
+  result[5] = (uint8_t)((data1 % 10) / 1 + '0');
   result[6] = '\0';
   if(set < 0)
   {
@@ -191,15 +192,27 @@ void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
 *  @参数       x       显示位置的横坐标(0~127)
 *  @参数       y       显示位置的纵坐标(0~7)
 *  @参数       data1   待显示的浮点数
-*  @参数       set     显示浮点数的整数位位数，如果该参数带负号，则显示结果有符号
-*  示例:       gpio_init (0, 0, 100.0/3, 2);    //在屏幕(0,0)位置显示 33.33
-               gpio_init (0, 0, 100.0/3, -2);    //在屏幕(0,0)位置显示 +33.33
+*  @参数       set     显示浮点数的整数位位数，如果该参数带负号，则显示结果有符号，若为0则自动调整合适的显示值
+*  示例:       OLED_P6x8Flo (0, 0, 100.0/3, 3);    //在屏幕(0,0)位置显示 033.33
+               OLED_P6x8Flo (0, 0, 100.0/3, -3);   //在屏幕(0,0)位置显示 +033.33
+               OLED_P6x8Flo (0, 0, 100.0/3, 0);    //在屏幕(0,0)位置显示 33.33
 */
 void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set)
 {
-  uint8_t result[9];
+  uint8_t result[13] = {0};
   uint32_t data2;
-  if(data1<0)
+	
+	if(set > 8) set = 8; //整数位最多显示8位
+	if(set < -8) set = -8;
+	
+	if(set == 0) 
+	{
+		int32_t temp = data1;
+		for(set = 1; temp /= 10 != 0; ++set);
+		if(data1 < 0) set *= -1;
+	}
+	
+  if(data1 < 0)
   {			
     result[0] = '-';
     data1 *= -1;
@@ -208,16 +221,21 @@ void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set)
   {
     result[0]='+';
   }
+	
   data1 += 0.000001;
-  data2 = (uint32_t)(data1*100);
-  result[1] = (uint8_t)((data2%1000000)/100000+48);
-  result[2] = (uint8_t)((data2%100000)/10000+48);
-  result[3] = (uint8_t)((data2%10000)/1000+48);
-  result[4] = (uint8_t)((data2%1000)/100+48);
-  result[5] = '.';
-  result[6] = (uint8_t)((data2%100)/10+48);
-  result[7] = (uint8_t)(data2%10+48);
-  result[8] = '\0';
+  data2 = (uint32_t)(data1 * 100);
+	result[1] = (uint8_t)((data2 % 10000000000) / 1000000000 + '0');
+	result[2] = (uint8_t)((data2 % 1000000000) / 100000000 + '0');
+	result[3] = (uint8_t)((data2 % 100000000) / 10000000 + '0');
+	result[4] = (uint8_t)((data2 % 10000000) / 1000000 + '0');
+  result[5] = (uint8_t)((data2 % 1000000) / 100000 + '0');
+  result[6] = (uint8_t)((data2 % 100000) / 10000 + '0');
+  result[7] = (uint8_t)((data2 % 10000) / 1000 + '0');
+  result[8] = (uint8_t)((data2 % 1000) / 100 + '0');
+  result[9] = '.';
+  result[10] = (uint8_t)((data2 % 100) / 10 + '0');
+  result[11] = (uint8_t)((data2 % 10) / 1 + '0');
+  result[12] = '\0';
   
   if(set < 0)
   {
@@ -235,29 +253,29 @@ void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set)
 *  @参数       x       显示位置的横坐标(0~127)
 *  @参数       y       显示位置的纵坐标(0~6)
 *  @参数       ch      待显示的字符
-*  示例:       gpio_init (0, 0, 'H');    //在屏幕(0,0)位置显示 H
+*  示例:       OLED_P8x16Char (0, 0, 'H');    //在屏幕(0,0)位置显示 H
 */
 void OLED_P8x16Char(uint8_t x, uint8_t y, char ch)
 {
   uint8_t c = 0, i = 0;
   
   c = ch - 32;
-  if(x > 120)
+  if(x > OLED_X_MAX - 8)
   {
-    x=0;
-    y++;
+    x = 0;
+    ++y;
   }
-  OLED_SetPos(x,y);
-  for(i=0;i<8;i++)
+  OLED_SetPos(x, y);
+  for(i = 0; i < 8; ++i)
   {
-    OLED_WriteDat(F8X16[c*16+i]);
+    OLED_WriteDat(F8X16[c * 16 + i]);
   }
-  OLED_SetPos(x,y+1);
-  for(i=0;i<8;i++)
+  OLED_SetPos(x, y + 1);
+  for(i = 0; i < 8; ++i)
   {
-    OLED_WriteDat(F8X16[c*16+i+8]);
+    OLED_WriteDat(F8X16[c * 16 + i + 8]);
   }
-  x+=8;
+  x += 8;
 }
 
 /*!
@@ -273,23 +291,23 @@ void OLED_P8x16Str(uint8_t x, uint8_t y, const char *ch)
   while (ch[j] != '\0')
   {    
     c = ch[j] - 32;
-    if(x > 120)
+    if(x > OLED_X_MAX - 8)
     {
-      x=0;
-      y++;
+      x = 0;
+      ++y;
     }
-    OLED_SetPos(x,y);
-    for(i=0;i<8;i++)
+    OLED_SetPos(x, y);
+    for(i = 0; i < 8; ++i)
     {
-      OLED_WriteDat(F8X16[c*16+i]);
+      OLED_WriteDat(F8X16[c * 16 + i]);
     }
-    OLED_SetPos(x,y+1);
-    for(i=0;i<8;i++)
+    OLED_SetPos(x, y + 1);
+    for(i = 0; i < 8; ++i)
     {
-      OLED_WriteDat(F8X16[c*16+i+8]);
+      OLED_WriteDat(F8X16[c * 16 + i + 8]);
     }
-    x+=8;
-    j++;
+    x += 8;
+    ++j;
   }
 }
 
@@ -306,22 +324,22 @@ void OLED_P14x16CHCHAR(uint8_t x, uint8_t y, const char *ch)
   uint8_t wordnum, i;
   while(*ch != '\0')
   {
-    if(x > 114)
+    if(x > OLED_X_MAX - 14)
     {
       x = 0;
-      ++ y;
+      ++y;
     }
     OLED_SetPos(x, y);
-    for(wordnum = 0; wordnum < sizeof(Word14x16)/31; ++wordnum)
+    for(wordnum = 0; wordnum < sizeof(Word14x16) / 31; ++wordnum)
     {
-      if(((*ch & 0xff) == (Word14x16[wordnum].word_name[0] & 0xff)) && ((*(ch+1) & 0xff) == (Word14x16[wordnum].word_name[1] & 0xff)))
+      if(((*ch & 0xff) == (Word14x16[wordnum].word_name[0] & 0xff)) && ((*(ch + 1) & 0xff) == (Word14x16[wordnum].word_name[1] & 0xff)))
       {
-        for(i=0; i<14; i++)
+        for(i = 0; i < 14; ++i)
         {
           OLED_WriteDat(Word14x16[wordnum].index[i]);
         }
-        OLED_SetPos(x, y+1);
-        for(i=14; i<28; i++)
+        OLED_SetPos(x, y + 1);
+        for(i = 14; i < 28; ++i)
         {
           OLED_WriteDat(Word14x16[wordnum].index[i]);
         }
@@ -345,8 +363,8 @@ void OLED_P14x16CHCHAR(uint8_t x, uint8_t y, const char *ch)
 */
 void OLED_PrintBMP(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, const char bmp[])
 { 	
-  uint16_t temp=0;
-  uint8_t x,y;
+  uint16_t temp = 0;
+  uint8_t x, y;
   for(y = y0; y <= y1; ++y)
   {
     OLED_SetPos(x0,y);				
@@ -364,15 +382,15 @@ void OLED_PrintBMP(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, const char bm
 *  @参数       binary		待显示的二值化图片
 *  示例:       gpio_init (94, 60, Binary);    //在屏幕(0,0)位置显示一个大小为96 * 60 的图片
 */
-void OLED_PrintBinary(uint16 size_x, uint16 size_y, uint8 * binary)
+void OLED_PrintBinary(uint16_t size_x, uint16_t size_y, uint8_t* binary)
 {
-	uint8 data;
-	for(int16 index_y = 0; index_y < 8; ++index_y)
+	uint8_t data;
+	for(int16_t index_y = 0; index_y < 8; ++index_y)
 	{
 		OLED_SetPos(0, index_y);
-		for(int16 index_x = 0; index_x < 128; ++index_x)
+		for(int16_t index_x = 0; index_x < 128; ++index_x)
 		{
-			for(int8 index = 7; index >= 0; --index)
+			for(int8_t index = 7; index >= 0; --index)
 			{
 				data <<= 1;
 				data |= (binary + ((index_y  * 8 + index) * size_y) / 64 * size_x)[(index_x * size_x) / 128] & 0x01;
@@ -383,54 +401,53 @@ void OLED_PrintBinary(uint16 size_x, uint16 size_y, uint8 * binary)
 }
 
 /****************** 以下为内部函数，不可调用 ******************/
-__STATIC_INLINE void SPI_Init(void)
-{
-	(void)spi_init(OLED_SPI, NOT_PCS, MASTER, bus_clk_mhz *1000000);
-}
 
-__STATIC_INLINE void OLED_WriteCmd(uint8 cmd)
-{
-  OLED_DCL;
-  while((SPIN[OLED_SPI]->SR & SPI_SR_TCF_MASK) == 1);//等待传输完成
-  SPIN[OLED_SPI]->SR = SPI_SR_TCF_MASK;
-  SPIN[OLED_SPI]->PUSHR = (0
-													| SPI_PUSHR_CTAS(0)          //选择CTAR0寄存器
-													| SPI_PUSHR_CONT_MASK         
-													| SPI_PUSHR_TXDATA(cmd));
-}
-
-__STATIC_INLINE void OLED_WriteDat(uint8 data)
-{
-  OLED_DCH;
-  while((SPIN[OLED_SPI]->SR & SPI_SR_TCF_MASK) == 1);//等待传输完成
-  SPIN[OLED_SPI]->SR = SPI_SR_TCF_MASK;
-  SPIN[OLED_SPI]->PUSHR = (0
-													| SPI_PUSHR_CTAS(0)          //选择CTAR0寄存器
-													| SPI_PUSHR_CONT_MASK         
-													| SPI_PUSHR_TXDATA(data));
-}
-
-static void OLED_DLY_ms(uint16_t ms)
-{                         
-  unsigned int a;
-  while(ms)
-  {
-    a=222;
-    while(a--);
-    ms--;
-  }
-  return;
-}
+//这段宏定义的作用是：根据OLED_SPI_HARDWARE定义,为OLED_SPI_INIT和OLED_SPI_SEND_DATA挑选对应函数
+#if OLED_SPI_HARDWARE == 0 //使用模拟SPI
+#define OLED_SPI_INIT()       SPI_InitSimulated(OLED_SDA_Pin, OLED_SCL_Pin)
+#define OLED_SPI_SEND_DATA(x) SPI_SendDataSimulated(OLED_SDA_Pin, OLED_SCL_Pin, x)
+#else //使用硬件SPI
+#define OLED_SPI_INIT()       SPI_InitHardware(OLED_SPI, bus_clk_mhz *1000000)
+#define OLED_SPI_SEND_DATA(x) SPI_SendDataHardware(OLED_SPI, x)
+#endif
 
 static void OLED_PinInit(void)
 {
+  OLED_SPI_INIT();
   gpio_init(OLED_RES_Pin, GPO, 1);
   gpio_init(OLED_DC_Pin, GPO, 1);
 }
 
-static void OLED_SetPos(uint8_t x, uint8_t y)//设置坐标
+static void OLED_WriteDat(uint8_t data) //写数据
+{
+#if OLED_SPI_USE_CS == 1
+	OLED_CSL();
+#endif
+	
+  OLED_DCH;
+	OLED_SPI_SEND_DATA(data);
+	
+#if OLED_SPI_USE_CS == 1
+	OLED_CSH();
+#endif
+}
+static void OLED_WriteCmd(uint8_t cmd) //写命令
+{
+#if OLED_SPI_USE_CS == 1
+	OLED_CSL();
+#endif
+	
+  OLED_DCL;
+	OLED_SPI_SEND_DATA(cmd);
+	
+#if OLED_SPI_USE_CS == 1
+	OLED_CSH();
+#endif
+}
+
+static void OLED_SetPos(uint8_t x, uint8_t y) //设置坐标
 { 
-  OLED_WriteCmd(0xb0+y);
-  OLED_WriteCmd(((x&0xf0)>>4)|0x10);
-  OLED_WriteCmd((x&0x0f)|0x01); 
+  OLED_WriteCmd(0xb0 + y);
+  OLED_WriteCmd(((x & 0xf0) >> 4) | 0x10);
+  OLED_WriteCmd((x & 0x0f) | 0x01); 
 }
