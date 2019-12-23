@@ -21,22 +21,22 @@
 #define OLED_SPI_HARDWARE      1
 
 //是否启用片选引脚：0为不启用,1为启用.增加片选引脚可以增加SPI通讯稳定,但需要把单片机引脚连接到OLED的CS引脚上.若不启用,OLED上的CS引脚必须接地
-#define OLED_SPI_USE_CS				 0
+#define OLED_SPI_USE_CS	       0
 
 /****************** 引脚选择 ******************/
 #define OLED_DC_Pin    A13
 #define OLED_RES_Pin   A12
 
-#define OLED_RSTH 	gpio_set(OLED_RES_Pin, 1)
-#define OLED_RSTL 	gpio_set(OLED_RES_Pin, 0)
+#define OLED_RSTH      gpio_set(OLED_RES_Pin, 1)
+#define OLED_RSTL      gpio_set(OLED_RES_Pin, 0)
 
-#define OLED_DCH  	gpio_set(OLED_DC_Pin, 1)
-#define OLED_DCL  	gpio_set(OLED_DC_Pin, 0)
+#define OLED_DCH       gpio_set(OLED_DC_Pin, 1)
+#define OLED_DCL       gpio_set(OLED_DC_Pin, 0)
 
 #if OLED_SPI_USE_CS == 1 //启用片选引脚,若不启用,下面的宏不需要填
 #define OLED_CS_Pin    A14
-#define OLED_CSH  	   gpio_set(OLED_CS_Pin, 1)
-#define OLED_CSL  	   gpio_set(OLED_CS_Pin, 0)
+#define OLED_CSH       gpio_set(OLED_CS_Pin, 1)
+#define OLED_CSL       gpio_set(OLED_CS_Pin, 0)
 #endif
 
 #if OLED_SPI_HARDWARE == 0 //使用模拟SPI,在这个情况下可以不定义OLED_SPI

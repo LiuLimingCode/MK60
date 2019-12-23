@@ -13,28 +13,28 @@
 #include "MK60_oled.h"
 
 /***************** 主要宏定义 *****************/
-#define ENABLE_WARNPAGE					1           //这个宏 写0关闭警告界面 写1开启
+#define ENABLE_WARNPAGE         1           //这个宏 写0关闭警告界面 写1开启
 #define ENABLE_BUZZER           1           //这个宏 写0关闭蜂鸣器 写1开启蜂鸣器
-#define MENU_UNITS_MAX					13          //菜单单元的最大个数
-#define UNIT_VARIABLES_MAX			4           //每个菜单单元中能控制的变量的最大个数
-#define VARIABLE_STORE_NUM 		 (FLASH_SECTOR_SIZE/VARIABLE_STORE_BIT) 	//菜单最大可以存储的变量数
+#define MENU_UNITS_MAX          13          //菜单单元的最大个数
+#define UNIT_VARIABLES_MAX      4           //每个菜单单元中能控制的变量的最大个数
+#define VARIABLE_STORE_NUM      (FLASH_SECTOR_SIZE/VARIABLE_STORE_BIT)  //菜单最大可以存储的变量数
 
 /***************** 次要宏定义 *****************/
-#define FLASH_SAVE_PRO_MENU		 (FLASH_SECTOR_NUM - 100)									//菜单数据在FLASH中存储的位置
-#define FLASH_SAVE_RAW_MENU		 (FLASH_SECTOR_NUM - 150)									//菜单数据在FLASH中存储的位置
-#define FLASH_SECTOR_SIZE			 SECTOR_SIZE															//FLASH的存储总字节数
-#define VARIABLE_STORE_BIT		 15																				//每个变量在FLASH中存储的位数
-#define FLASH_STORE_BIT				 32																				//菜单的变量压缩后在FLASH存储所占的位数
-#define FLASH_STORE_NUM				 (FLASH_SECTOR_SIZE/FLASH_STORE_BIT)	  	//菜单的变量压缩后在FLASH中存储的变量数
+#define FLASH_SAVE_PRO_MENU      (FLASH_SECTOR_NUM - 100)                 //菜单数据在FLASH中存储的位置
+#define FLASH_SAVE_RAW_MENU      (FLASH_SECTOR_NUM - 150)                 //菜单数据在FLASH中存储的位置
+#define FLASH_SECTOR_SIZE        SECTOR_SIZE                              //FLASH的存储总字节数
+#define VARIABLE_STORE_BIT       15                                       //每个变量在FLASH中存储的位数
+#define FLASH_STORE_BIT          32                                       //菜单的变量压缩后在FLASH存储所占的位数
+#define FLASH_STORE_NUM          (FLASH_SECTOR_SIZE/FLASH_STORE_BIT)      //菜单的变量压缩后在FLASH中存储的变量数
 
 /****************** 引脚选择 ******************/
-#define MENU_BUTTON_UP					B16         //上按键
-#define MENU_BUTTON_DOWN				A19         //下按键
-#define MENU_BUTTON_LEFT				B0          //左按键
-#define MENU_BUTTON_RIGHT				B9          //右按键
-#define MENU_BUTTON_CONFIRM			B1          //确认按键
+#define MENU_BUTTON_UP          B16         //上按键
+#define MENU_BUTTON_DOWN        A19         //下按键
+#define MENU_BUTTON_LEFT        B0          //左按键
+#define MENU_BUTTON_RIGHT       B9          //右按键
+#define MENU_BUTTON_CONFIRM     B1          //确认按键
 #if ENABLE_BUZZER
-#define MENU_BUZZER							D0          //蜂鸣器,若ENABLE_BUZZER为0,可以不设置
+#define MENU_BUZZER             D0          //蜂鸣器,若ENABLE_BUZZER为0,可以不设置
 #endif
 
 //------------------------------------------------------------------------------------
@@ -62,10 +62,10 @@ typedef enum
 
 typedef struct
 {
-	const char* 			UintTitle;												//显示的名字
-	void* 						VariableAddr[UNIT_VARIABLES_MAX];	//变量数据地址
-	VariableTypeDef 	VariableType[UNIT_VARIABLES_MAX];	//变量数据类型
-	const char* 			VariableName[UNIT_VARIABLES_MAX];	//变量显示名字
+	const char*       UintTitle;                        //显示的名字
+	void*             VariableAddr[UNIT_VARIABLES_MAX]; //变量数据地址
+	VariableTypeDef   VariableType[UNIT_VARIABLES_MAX]; //变量数据类型
+	const char*       VariableName[UNIT_VARIABLES_MAX]; //变量显示名字
 }Menu_Unit;
 
 typedef Menu_Unit Menu[MENU_UNITS_MAX]; //用户用Menu定义自己的菜单结构体,语法: Menu myMenu; //等价于Menu_Unit[MENU_UNITS_MAX] myMenu;

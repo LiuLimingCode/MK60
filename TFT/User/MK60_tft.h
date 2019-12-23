@@ -11,8 +11,8 @@
 #include "headfile.h"
 
 /***************** 重要宏定义 *****************/
-#define	TFT_X_MAX	128                 //液晶X方宽度
-#define TFT_Y_MAX	160                 //液晶Y方宽度
+#define	TFT_X_MAX	128               //液晶X方宽度
+#define TFT_Y_MAX	160               //液晶Y方宽度
 #define TFT_GBP454_RED     	0XF800    //红色
 #define TFT_GBP454_GREEN   	0X07E0    //绿色
 #define TFT_GBP454_BLUE    	0X001F    //蓝色
@@ -27,22 +27,22 @@
 #define TFT_SPI_HARDWARE      1
 
 //是否启用片选引脚：0为不启用,1为启用.增加片选引脚可以增加SPI通讯稳定,但需要把单片机引脚连接到OLED的CS引脚上.若不启用,OLED上的CS引脚必须接地
-#define TFT_SPI_USE_CS				 0
+#define TFT_SPI_USE_CS        0
 
 /***************** 引脚选择 *****************/
 #define TFT_DC_Pin    A13
 #define TFT_RES_Pin   A12
 
-#define TFT_RSTH 	gpio_set(TFT_RES_Pin, 1)
-#define TFT_RSTL 	gpio_set(TFT_RES_Pin, 0)
+#define TFT_RSTH      gpio_set(TFT_RES_Pin, 1)
+#define TFT_RSTL      gpio_set(TFT_RES_Pin, 0)
 
-#define TFT_DCH  	gpio_set(TFT_DC_Pin, 1)
-#define TFT_DCL  	gpio_set(TFT_DC_Pin, 0)
+#define TFT_DCH       gpio_set(TFT_DC_Pin, 1)
+#define TFT_DCL       gpio_set(TFT_DC_Pin, 0)
 
 #if TFT_SPI_USE_CS == 1 //启用片选引脚,若不启用,下面的宏不需要填
 #define TFT_CS_Pin    A14
-#define TFT_CSH  	   gpio_set(TFT_CS_Pin, 1)
-#define TFT_CSL  	   gpio_set(TFT_CS_Pin, 0)
+#define TFT_CSH       gpio_set(TFT_CS_Pin, 1)
+#define TFT_CSL       gpio_set(TFT_CS_Pin, 0)
 #endif
 
 #if TFT_SPI_HARDWARE == 0 //使用模拟SPI,在这个情况下可以不定义TFT_SPI
