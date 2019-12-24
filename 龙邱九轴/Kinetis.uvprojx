@@ -410,9 +410,14 @@
               <FilePath>.\User\MK60_fxos8700.c</FilePath>
             </File>
             <File>
-              <FileName>MK60_myiic.c</FileName>
+              <FileName>MK60_myspi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\MK60_myiic.c</FilePath>
+              <FilePath>.\User\MK60_myspi.c</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_myiic.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\User\MK60_myiic.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -980,9 +985,14 @@
               <FilePath>.\User\MK60_fxos8700.c</FilePath>
             </File>
             <File>
-              <FileName>MK60_myiic.c</FileName>
+              <FileName>MK60_myspi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\MK60_myiic.c</FilePath>
+              <FilePath>.\User\MK60_myspi.c</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_myiic.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\User\MK60_myiic.cpp</FilePath>
             </File>
           </Files>
         </Group>

@@ -135,11 +135,9 @@ void OLED_P6x8Str(uint8_t x, uint8_t y, const char *ch)
 //  @参数       x       显示位置的横坐标(0~127)
 //  @参数       y       显示位置的纵坐标(0~7)
 //  @参数       data1   待显示的整数
-//  @参数       set     显示整数位位数,如果该参数带负号,则显示结果有符号,若为0则自动调整合适的显示值
+//  @参数       set     显示整数位位数,如果该参数带负号,则显示结果有符号
 //  @示例       OLED_P6x8Int(0, 0, 123, 4);     //在屏幕(0,0)位置显示 0123
 //              OLED_P6x8Int(0, 0, -123, -3);   //在屏幕(0,0)位置显示 -123
-//              OLED_P6x8Int(0, 0, 12, 0);      //在屏幕(0,0)位置显示 12
-//              OLED_P6x8Int(0, 0, -123, 0);    //在屏幕(0,0)位置显示 -123
 //----------------------------------------------------------------------------------------
 void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
 {
@@ -147,13 +145,6 @@ void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
 	
 	if(set > 5) set = 5; //int16整数最多显示5位
 	if(set < -5) set = -5;
-	
-	if(set == 0) 
-	{
-		int16_t temp = data1;
-		for(set = 1; (temp /= 10) != 0; ++set);
-		if(data1 < 0) set *= -1;
-	}
 	
 	if(data1 < 0)
 	{
@@ -188,10 +179,9 @@ void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
 //  @参数       x       显示位置的横坐标(0~127)
 //  @参数       y       显示位置的纵坐标(0~7)
 //  @参数       data1   待显示的浮点数
-//  @参数       set     显示浮点数的整数位位数,如果该参数带负号,则显示结果有符号,若为0则自动调整合适的显示值
+//  @参数       set     显示浮点数的整数位位数,如果该参数带负号,则显示结果有符号
 //  @示例       OLED_P6x8Flo(0, 0, 100.0/3, 3);    //在屏幕(0,0)位置显示 033.33
 //              OLED_P6x8Flo(0, 0, 100.0/3, -3);   //在屏幕(0,0)位置显示 +033.33
-//              OLED_P6x8Flo(0, 0, 100.0/3, 0);    //在屏幕(0,0)位置显示 33.33
 //----------------------------------------------------------------------------------------
 void OLED_P6x8Flo(uint8_t x, uint8_t y, double data1, int8 set)
 {
@@ -200,13 +190,6 @@ void OLED_P6x8Flo(uint8_t x, uint8_t y, double data1, int8 set)
 	
 	if(set > 8) set = 8; //整数位最多显示8位
 	if(set < -8) set = -8;
-	
-	if(set == 0) 
-	{
-		int32_t temp = data1;
-		for(set = 1; (temp /= 10) != 0; ++set);
-		if(data1 < 0) set *= -1;
-	}
 	
 	if(data1 < 0)
 	{			

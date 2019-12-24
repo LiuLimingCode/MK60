@@ -399,6 +399,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\MK60_oled.c</FilePath>
             </File>
+            <File>
+              <FileName>MK60_myspi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\MK60_myspi.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -953,6 +958,11 @@
               <FileName>MK60_oled.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\MK60_oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_myspi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\MK60_myspi.c</FilePath>
             </File>
           </Files>
         </Group>

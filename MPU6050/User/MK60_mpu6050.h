@@ -1,6 +1,8 @@
  /*!
  * @文件       mpu6050.h
- * @功能       MPU6050姿态传感器函数实现
+ * @功能       MPU6050函数实现,MPU6050是一款六轴姿态传感器,其角速度传感器略有漂移,无其他明显缺点.
+ *             其加速度传感器噪声较大,数据必须通过处理后方可使用.芯片最大的优点是自带DMP单元,可以
+ *             计算四元数,为单片机减少了很大的负担,但单片机和芯片DMP的通信必须妥善处理.
  * @作者       刘力铭
  * @完成时间   2019-12
  */
@@ -18,17 +20,6 @@
 #define ERR_SELTTEST_FAIL        (uint8_t)2
 #define ERR_MPU6050INIT_FAIL     (uint8_t)3
 #define ERR_DMPINIT_FAIL         (uint8_t)4
-
-typedef enum
-{ 
-	MPU6050_ACCEL_X = 0, //X轴加速度
-	MPU6050_ACCEL_Y = 1, //Y轴加速度
-	MPU6050_ACCEL_Z = 2, //Z轴加速度
-	MPU6050_TEMPERATURE = 3, //温度值
-	MPU6050_GYRO_X = 4, //X轴角速度
-	MPU6050_GYRO_Y = 5, //Y轴角速度
-	MPU6050_GYRO_Z = 6, //Z轴角速度
-}MPU6050_DATA_TypeDef;
 
 /********************** 寄存器地址 **********************/
 
@@ -62,7 +53,7 @@ typedef enum
 #define MPU6050_REGISTER_WHO_AM_I         0x75    //从机地址寄存器
 
 /********************** CONFIG **********************/
-typedef enum                                                            //滤波器设置
+typedef enum            //滤波器设置
 { 
 	DLPF_CFG_BANDWIDTH_260 = 0x00,
 	DLPF_CFG_BANDWIDTH_184 = 0x01,
@@ -82,7 +73,7 @@ typedef enum                                                            //滤波器
 
 typedef enum            //陀螺仪量程
 { 
-	FS_SEL_250 = 0x00, //int16满量程为±250°/s
+	FS_SEL_250 = 0x00,    //int16满量程为±250°/s
 	FS_SEL_500 = 0x08,
 	FS_SEL_1000 = 0x10,
 	FS_SEL_2000 = 0x18,
@@ -97,7 +88,7 @@ typedef enum            //陀螺仪量程
 
 typedef enum            //加速度传感器量程
 { 
-	AFS_SEL_2G = 0x00,  //int16满量程为±2G
+	AFS_SEL_2G = 0x00,    //int16满量程为±2G
 	AFS_SEL_4G = 0x08,
 	AFS_SEL_8G = 0x10,
 	AFS_SEL_16G = 0x18,
@@ -131,6 +122,18 @@ typedef enum
 	CLKSEL_PLL_19_2MHZ = 0x05,
 	CLKSEL_STOP = 0x07,
 }CLKSEL_TypeDef;
+
+/********************** 数据类型 **********************/
+typedef enum
+{ 
+	MPU6050_ACCEL_X = 0, //X轴加速度
+	MPU6050_ACCEL_Y = 1, //Y轴加速度
+	MPU6050_ACCEL_Z = 2, //Z轴加速度
+	MPU6050_TEMPERATURE = 3, //温度值
+	MPU6050_GYRO_X = 4, //X轴角速度
+	MPU6050_GYRO_Y = 5, //Y轴角速度
+	MPU6050_GYRO_Z = 6, //Z轴角速度
+}MPU6050_DATA_TypeDef;
 
 /***************** 重要宏定义 *****************/
 #define MPU6050_DMP_EN        1           //通过这个宏来判断是否开启DMP功能，关闭后不需要包含DMP的头文件
