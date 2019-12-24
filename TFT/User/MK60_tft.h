@@ -58,7 +58,7 @@ void TFT_ClearScreen(uint16 color);
 void TFT_P8x16Char(uint16 x, uint16 y, uint8 dat, uint16 PENCOLOR, uint16 BGCOLOR);
 void TFT_P8x16Str(uint16 x, uint16 y, char *dat, uint16 PENCOLOR, uint16 BGCOLOR);
 void TFT_P8x16Int(uint16 x, uint16 y, int16_t data1, int8 set, uint16 PENCOLOR, uint16 BGCOLOR);
-void TFT_P6x8Flo(uint8 x, uint8 y, float data1, int8 set, uint16 PENCOLOR, uint16 BGCOLOR);
+void TFT_P6x8Flo(uint8 x, uint8 y, double data1, int8 set, uint16 PENCOLOR, uint16 BGCOLOR);
 void TFT_PrintBMP(uint8 x, uint8 y, uint8 size_x, uint8 size_y, const unsigned char *bmp) ;
 
 #endif

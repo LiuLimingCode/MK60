@@ -1,6 +1,6 @@
 #include "headfile.h"
 
-//以下为数字电位器操作界面参考程序
+//����Ϊ���ֵ�λ����������ο�����
 
 #define KU							B1
 #define KD							C5
@@ -33,10 +33,10 @@ typedef enum
   ADC_NUM,
 }ADC_POSITION;
 
-uint8 MCP41_Flash_Save[8];//用于保存MCP41返回的电阻值
-ADCn_Ch MCP41_ADC[ADC_NUM] = {AD_CH_L_1, AD_CH_L__, AD_CH_M_1, AD_CH_R__, AD_CH_R_1};//设定的通道
-uint8 MCP41_Set[ADC_NUM] = {80, 100, 80, 100, 80};//各个电感的设定值(对应上面设定的通道号)
-int16 ADC_MinData[ADC_NUM];//保存数字点位器设置后的电感最小值
+uint8 MCP41_Flash_Save[8];//���ڱ���MCP41���صĵ���ֵ
+ADCn_Ch MCP41_ADC[ADC_NUM] = {AD_CH_L_1, AD_CH_L__, AD_CH_M_1, AD_CH_R__, AD_CH_R_1};//�趨��ͨ��
+uint8 MCP41_Set[ADC_NUM] = {80, 100, 80, 100, 80};//������е��趨ֵ(��Ӧ�����趨��ͨ����)
+int16 ADC_MinData[ADC_NUM];//�������ֵ�λ�����ú�ĵ����Сֵ
 
 int main()
 {
@@ -68,13 +68,13 @@ int main()
     OLED_P6x8Int(OLED_SHOW(2), 3, adc_once(AD_CH_L__, ADC_8bit), 3);
     OLED_P6x8Int(OLED_SHOW(3), 3, adc_once(AD_CH_M_1, ADC_8bit), 3);
     OLED_P6x8Int(OLED_SHOW(4), 3, adc_once(AD_CH_R__, ADC_8bit), 3);
-    OLED_P6x8Int(OLED_SHOW(5), 3, adc_once(AD_CH_R_1, ADC_8bit), 3);//显示电感读数
+    OLED_P6x8Int(OLED_SHOW(5), 3, adc_once(AD_CH_R_1, ADC_8bit), 3);//��ʾ��ж���
     systick_delay_ms(10);
   }
 }
 
 /**
- * @备注    数字电位器人机界面操作函数，MCP41_Set数组为电感的预设值
+ * @��ע    ���ֵ�λ���˻��������������MCP41_Set����Ϊ��е�Ԥ��ֵ
  */
 void Normalized_MCP41(void)
 {
@@ -85,7 +85,7 @@ void Normalized_MCP41(void)
 	OLED_P6x8Str(OLED_SHOW(2), 1, "L__");
 	OLED_P6x8Str(OLED_SHOW(3), 1, "M_1");
 	OLED_P6x8Str(OLED_SHOW(4), 1, "R__");
-	OLED_P6x8Str(OLED_SHOW(5), 1, "R_1");//显示界面
+	OLED_P6x8Str(OLED_SHOW(5), 1, "R_1");//��ʾ����
         
 	while(1)
 	{
@@ -93,36 +93,36 @@ void Normalized_MCP41(void)
 		OLED_P6x8Int(OLED_SHOW(2), 3, adc_once(AD_CH_L__, ADC_8bit), 3);
 		OLED_P6x8Int(OLED_SHOW(3), 3, adc_once(AD_CH_M_1, ADC_8bit), 3);
 		OLED_P6x8Int(OLED_SHOW(4), 3, adc_once(AD_CH_R__, ADC_8bit), 3);
-		OLED_P6x8Int(OLED_SHOW(5), 3, adc_once(AD_CH_R_1, ADC_8bit), 3);//显示电感读数
+		OLED_P6x8Int(OLED_SHOW(5), 3, adc_once(AD_CH_R_1, ADC_8bit), 3);//��ʾ��ж���
 		
-		if(gpio_get(KL) == 0) _index--;//光标左右移动
+		if(gpio_get(KL) == 0) _index--;//��������ƶ�
 		if(gpio_get(KR) == 0) _index++;
-		if(gpio_get(KU) == 0)//如果按下了上键，那么将设定的电阻值全部保存到FLASH
+		if(gpio_get(KU) == 0)//����������ϼ�����ô���趨�ĵ���ֵȫ�����浽FLASH
 		{
-			FLASH_EraseSector(FLASH_SAVE_MCP41);//FLASH必须先擦除再写入
+			FLASH_EraseSector(FLASH_SAVE_MCP41);//FLASH�����Ȳ�����д��
 			for(int8 temp = 0; temp < 8; temp++)
-				FLASH_WriteSector(FLASH_SAVE_MCP41, 32 * temp, MCP41_Flash_Save[temp]);//写入电阻值
+				FLASH_WriteSector(FLASH_SAVE_MCP41, 32 * temp, MCP41_Flash_Save[temp]);//д�����ֵ
                         FLASH_EraseSector(FLASH_SAVE_ADC_NORMAL);
 			for(int8 temp = 0; temp < ADC_NUM; temp++)
-				FLASH_WriteSector(FLASH_SAVE_ADC_NORMAL, 32 * temp, ADC_MinData[temp]);//写入ADC最小值
+				FLASH_WriteSector(FLASH_SAVE_ADC_NORMAL, 32 * temp, ADC_MinData[temp]);//д��ADC��Сֵ
 			break;
 		}
-		if(gpio_get(KD) == 0)//如果按了下键，那么不保存设定值，用原来保存的电阻值重新设置电位器
-                {
-                	FLASH_InitMCP41();
-                	break;
-                }
-		if(gpio_get(KC) == 0)//如果按下确认键，那么开始调整电阻值
+		if(gpio_get(KD) == 0)//��������¼�����ô�������趨ֵ����ԭ������ĵ���ֵ�������õ�λ��
 		{
-			OLED_P6x8Str(OLED_SHOW(_index), 2, " & ");//调整过程中显示 & 
+			FLASH_InitMCP41();
+			break;
+		}
+		if(gpio_get(KC) == 0)//�������ȷ�ϼ�����ô��ʼ��������ֵ
+		{
+			OLED_P6x8Str(OLED_SHOW(_index), 2, " & ");//������������ʾ & 
 			MCP41_Flash_Save[_index - 1] = MCP41_SetValue(_index - 1, MCP41_Set[_index  - 1]);
 			systick_delay_ms(50);
-                        ADC_MinData[_index - 1] = adc_read(MCP41_ADC[_index - 1], ADC_8bit,16);//保存此时的最小值
-			OLED_P6x8Str(OLED_SHOW(_index), 2, " * ");//显示 * 表示调整结束
-			OLED_P6x8Int(OLED_SHOW(_index), 4, MCP41_Set[_index - 1], 3);//显示调整值用于参考
+                        ADC_MinData[_index - 1] = adc_read(MCP41_ADC[_index - 1], ADC_8bit,16);//�����ʱ����Сֵ
+			OLED_P6x8Str(OLED_SHOW(_index), 2, " * ");//��ʾ * ��ʾ��������
+			OLED_P6x8Int(OLED_SHOW(_index), 4, MCP41_Set[_index - 1], 3);//��ʾ����ֵ���ڲο�
 		}
 		
-		if(_index == 0) _index = ADC_NUM;//光标控制
+		if(_index == 0) _index = ADC_NUM;//������
 		if(_index == ADC_NUM + 1) _index = 1;
 		
 		OLED_P6x8Str(OLED_SHOW(_index), 2, " * ");
@@ -132,23 +132,23 @@ void Normalized_MCP41(void)
 		_index_old = _index;
 		systick_delay_ms(50);
 		
-		for(int temp = 0; temp < 3; ++temp)//增加电感读数显示的频率
+		for(int temp = 0; temp < 3; ++temp)//���ӵ�ж�����ʾ��Ƶ��
 		{
 			OLED_P6x8Int(OLED_SHOW(1), 3, adc_once(AD_CH_L_1, ADC_8bit), 3);
                         OLED_P6x8Int(OLED_SHOW(2), 3, adc_once(AD_CH_L__, ADC_8bit), 3);
                         OLED_P6x8Int(OLED_SHOW(3), 3, adc_once(AD_CH_M_1, ADC_8bit), 3);
                         OLED_P6x8Int(OLED_SHOW(4), 3, adc_once(AD_CH_R__, ADC_8bit), 3);
-                        OLED_P6x8Int(OLED_SHOW(5), 3, adc_once(AD_CH_R_1, ADC_8bit), 3);//显示电感读数
+                        OLED_P6x8Int(OLED_SHOW(5), 3, adc_once(AD_CH_R_1, ADC_8bit), 3);//��ʾ��ж���
 			systick_delay_ms(50);
 		}
 	}
         
-	OLED_ClearScreen(BLACK);//while结束后清屏
-	while(gpio_get(KU) == 0);//等待松手
+	OLED_ClearScreen(OLED_BLACK);//while����������
+	while(gpio_get(KU) == 0);//�ȴ�����
 	while(gpio_get(KD) == 0);
 }
 
-//从FLSAH中读出电阻的保存值并设置电位器
+//��FLSAH�ж�������ı���ֵ�����õ�λ��
 void FLASH_InitMCP41(void)
 {
 	for(int8 temp = 0; temp < 8; temp++)

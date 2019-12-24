@@ -242,13 +242,6 @@ void TFT_P8x16Int(uint16 x, uint16 y, int16_t data1, int8 set, uint16 PENCOLOR, 
 	if(set > 5) set = 5; //int16整数最多显示5位
 	if(set < -5) set = -5;
 	
-	if(set == 0) 
-	{
-		int16_t temp = data1;
-		for(set = 1; temp /= 10 != 0; ++set);
-		if(data1 < 0) set *= -1;
-	}
-	
 	if(data1 < 0)
 	{
 		data1 *= -1;
@@ -287,20 +280,13 @@ void TFT_P8x16Int(uint16 x, uint16 y, int16_t data1, int8 set, uint16 PENCOLOR, 
 //  @示例       TFT_P6x8Flo(0, 0, 100.0/3, 2, GBP454_BLACK, GBP454_WHITE); //在屏幕(0,0)位置显示 33.33,画笔颜色为黑色,背景颜色为白色
 //              TFT_P6x8Flo(0, 0, 100.0/3, -2, GBP454_BLACK, GBP454_WHITE); //在屏幕(0,0)位置显示 +33.33,画笔颜色为黑色,背景颜色为白色
 //----------------------------------------------------------------------------------------
-void TFT_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set, uint16 PENCOLOR, uint16 BGCOLOR)
+void TFT_P6x8Flo(uint8_t x, uint8_t y, double data1, int8 set, uint16 PENCOLOR, uint16 BGCOLOR)
 {
 	uint8_t result[13] = {0};
 	uint32_t data2;
 	
 	if(set > 8) set = 8; //整数位最多显示8位
 	if(set < -8) set = -8;
-	
-	if(set == 0) 
-	{
-		int32_t temp = data1;
-		for(set = 1; temp /= 10 != 0; ++set);
-		if(data1 < 0) set *= -1;
-	}
 	
 	if(data1 < 0)
 	{			
@@ -329,12 +315,12 @@ void TFT_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set, uint16 PENCOLOR, u
 	
 	if(set < 0)
 	{
-		result[4 + set] = result[0];
-		TFT_P8x16Str(x, y, (char *)&(result[4 + set]), PENCOLOR, BGCOLOR);
+		result[8 + set] = result[0];
+		TFT_P8x16Str(x, y, (char *)&(result[8 + set]), PENCOLOR, BGCOLOR);
 	}
 	else if(set > 0)
 	{
-		TFT_P8x16Str(x, y, (char *)&(result[5 - set]), PENCOLOR, BGCOLOR);
+		TFT_P8x16Str(x, y, (char *)&(result[9 - set]), PENCOLOR, BGCOLOR);
 	}
 }
 

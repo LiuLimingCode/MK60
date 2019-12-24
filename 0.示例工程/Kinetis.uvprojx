@@ -394,31 +394,6 @@
               <FileType>1</FileType>
               <FilePath>.\User\main.c</FilePath>
             </File>
-            <File>
-              <FileName>MK60_oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_oled.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_fxas2100.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_fxas2100.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_fxos8700.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_fxos8700.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_myspi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_myspi.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_myiic.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>.\User\MK60_myiic.cpp</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -968,31 +943,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_oled.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_fxas2100.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_fxas2100.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_fxos8700.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_fxos8700.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_myspi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_myspi.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_myiic.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>.\User\MK60_myiic.cpp</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,7 +1,5 @@
 ::@echo off 
 
-@for /d /r %%c in (Listings, Objects) do @if exist %%c ( rd /s /q "%%c" & echo     删除目录%%c) 
-
-@for /r  %%c in (*.Administrator,*.bak, *.windows, *.saved_uv4) do del "%%c"
+@for /r  %%c in (*.crf, *.map, *.lst, *.d, *.o, *.axf, *.htm, *.sct, *.lnp, *.hex, *.dep, *.__i, *.scvd, *.bak) do del "%%c"
 
 pause

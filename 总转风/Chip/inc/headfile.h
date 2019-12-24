@@ -49,7 +49,8 @@
 
 #include "MK60_oled.h"
 #include "MK60_myspi.h"
-#include "MK60_mcp41.h"
+#include "SEEKFREE_MT9V032.h"
+#include "ImageProcess.h"
 
 #include "isr.h"
 
