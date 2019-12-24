@@ -26,6 +26,7 @@
 #include "inv_mpu_dmp_motion_driver.h"
 #include "MK60_SysTick.h"
 #include "MK60_myiic.h"
+#include "MK60_mpu6050.h"
 
 
 #define MPU6050							//定义我们使用的传感器为MPU6050
@@ -49,8 +50,8 @@
 //#include "msp430_clock.h"
 //#include "msp430_interrupt.h"
 
-#define i2c_write   IIC_WriteRegisterLen
-#define i2c_read    IIC_ReadRegisterLen
+#define i2c_write(a, b, c, d)   IIC_WriteRegisterLen(MPU6050_SDA_Pin, MPU6050_SCL_Pin, a, b, c, d)
+#define i2c_read(a, b, c, d)    IIC_ReadRegisterLen(MPU6050_SDA_Pin, MPU6050_SCL_Pin, a, b, c, d)
 #define delay_ms    systick_delay_ms
 #define get_ms      mget_ms
 //static inline int reg_int_cb(struct int_param_s *int_param)

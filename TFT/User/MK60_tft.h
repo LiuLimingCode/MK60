@@ -11,17 +11,17 @@
 #include "headfile.h"
 
 /***************** 重要宏定义 *****************/
-#define	TFT_X_MAX	128               //液晶X方宽度
-#define TFT_Y_MAX	160               //液晶Y方宽度
-#define TFT_GBP454_RED     	0XF800    //红色
-#define TFT_GBP454_GREEN   	0X07E0    //绿色
-#define TFT_GBP454_BLUE    	0X001F    //蓝色
-#define TFT_GBP454_BRED    	0XF81F
-#define TFT_GBP454_GRED    	0XFFE0    //灰色
-#define TFT_GBP454_GBLUE   	0X07FF    //
-#define TFT_GBP454_BLACK   	0X0000    //黑色
-#define TFT_GBP454_WHITE   	0XFFFF    //白色
-#define TFT_GBP454_YELLOW  	0xFFE0    //黄色
+#define TFT_X_MAX           128       //液晶X方宽度
+#define TFT_Y_MAX           160       //液晶Y方宽度
+#define TFT_GBP454_RED      0XF800    //红色
+#define TFT_GBP454_GREEN    0X07E0    //绿色
+#define TFT_GBP454_BLUE     0X001F    //蓝色
+#define TFT_GBP454_BRED     0XF81F
+#define TFT_GBP454_GRED     0XFFE0    //灰色
+#define TFT_GBP454_GBLUE    0X07FF    //
+#define TFT_GBP454_BLACK    0X0000    //黑色
+#define TFT_GBP454_WHITE    0XFFFF    //白色
+#define TFT_GBP454_YELLOW   0xFFE0    //黄色
 
 //是否选用硬件SPI：0为使用模拟SPI,1为使用硬件SPI,硬件软件SPI描述见MK_myspi.h
 #define TFT_SPI_HARDWARE      1

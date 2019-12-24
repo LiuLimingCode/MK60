@@ -1,7 +1,7 @@
 /*!
- * @file       oled.h
- * @brief      OLED函数实现
- * @author     刘力铭
+ * @文件       oled.h
+ * @功能       OLED函数实现
+ * @作者       刘力铭
  * @完成时间   2019-12
  */
 

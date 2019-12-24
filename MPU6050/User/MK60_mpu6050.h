@@ -1,8 +1,10 @@
-/*!
- * @file       mpu6050.h
- * @brief      MPU6050å‡½æ•°å®žçŽ°
- * @author     åˆ˜åŠ›é“­
+ /*!
+ * @ÎÄ¼þ       mpu6050.h
+ * @¹¦ÄÜ       MPU6050×ËÌ¬´«¸ÐÆ÷º¯ÊýÊµÏÖ
+ * @×÷Õß       ÁõÁ¦Ãú
+ * @Íê³ÉÊ±¼ä   2019-12
  */
+ 
 #ifndef __MK60_MPU6050_H
 #define __MK60_MPU6050_H
 
@@ -11,56 +13,56 @@
 #define MPU6050_ADDR 0x68
 #define q30  1073741824.0f
 
-#define NO_ERR                          (uint8_t)0
-#define ERR_IIC_CHECKACK_FAIL						(uint8_t)1
-#define ERR_SELTTEST_FAIL								(uint8_t)2
-#define ERR_MPU6050INIT_FAIL						(uint8_t)3
-#define ERR_DMPINIT_FAIL								(uint8_t)4
+#define NO_ERR                   (uint8_t)0
+#define ERR_IIC_CHECKACK_FAIL    (uint8_t)1
+#define ERR_SELTTEST_FAIL        (uint8_t)2
+#define ERR_MPU6050INIT_FAIL     (uint8_t)3
+#define ERR_DMPINIT_FAIL         (uint8_t)4
 
 typedef enum
 { 
-	MPU6050_ACCEL_X = 0,
-	MPU6050_ACCEL_Y = 1,
-	MPU6050_ACCEL_Z = 2,
-	MPU6050_TEMPERATURE = 3,
-	MPU6050_GYRO_X = 4,
-	MPU6050_GYRO_Y = 5,
-	MPU6050_GYRO_Z = 6,
+	MPU6050_ACCEL_X = 0, //XÖá¼ÓËÙ¶È
+	MPU6050_ACCEL_Y = 1, //YÖá¼ÓËÙ¶È
+	MPU6050_ACCEL_Z = 2, //ZÖá¼ÓËÙ¶È
+	MPU6050_TEMPERATURE = 3, //ÎÂ¶ÈÖµ
+	MPU6050_GYRO_X = 4, //XÖá½ÇËÙ¶È
+	MPU6050_GYRO_Y = 5, //YÖá½ÇËÙ¶È
+	MPU6050_GYRO_Z = 6, //ZÖá½ÇËÙ¶È
 }MPU6050_DATA_TypeDef;
 
-/********************** å¯„å­˜å™¨åœ°å€ **********************/
+/********************** ¼Ä´æÆ÷µØÖ· **********************/
 
-#define MPU6050_REGISTER_SELF_TEST_X			0x0D		//Xè½´è‡ªæµ‹å€¼
-#define MPU6050_REGISTER_SELF_TEST_Y			0x0E		//Yè½´è‡ªæµ‹å€¼
-#define MPU6050_REGISTER_SELF_TEST_Z			0x0F		//Zè½´è‡ªæµ‹å€¼
-#define MPU6050_REGISTER_SELF_TEST_A			0x10		//åŠ é€Ÿåº¦è‡ªæµ‹å€¼
-#define MPU6050_REGISTER_SMPLRT_DIV				0x19		//è¾“å‡ºåˆ†é¢‘
-#define	MPU6050_REGISTER_CONFIG						0x1A		//ä½Žé€šæ»¤æ³¢å™¨
-#define MPU6050_REGISTER_GYRO_CONFIG			0x1B		//X,Y,Zè½´é™€èžºä»ªè‡ªæ£€,é€‰æ‹©é™€èžºä»ªé‡ç¨‹
-#define MPU6050_REGISTER_ACCEL_CONFIG			0x1C		//X,Y,Zè½´åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨è‡ªæ£€,åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨é‡ç¨‹é€‰æ‹©
-#define MPU6050_REGISTER_FIFO_EN					0x23		//FIFOä½¿èƒ½å¯„å­˜å™¨
-#define	MPU6050_REGISTER_INT_ENABLE				0x38		//ä¸­æ–­ä½¿èƒ½å¯„å­˜å™¨
-#define MPU6050_REGISTER_INT_STATUS				0x3A		//ä¸­æ–­çŠ¶æ€å¯„å­˜å™¨
-#define	MPU6050_REGISTER_ACCEL_XOUTH			0x3B		//å­˜å‚¨æœ€è¿‘Xè½´åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨çš„æµ‹é‡å€¼(é«˜8ä½)
-#define MPU6050_REGISTER_ACCEL_XOUTL			0x3C		//å­˜å‚¨æœ€è¿‘Xè½´åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨çš„æµ‹é‡å€¼(ä½Ž8ä½)
-#define MPU6050_REGISTER_ACCEL_YOUTH			0x3D		//å­˜å‚¨æœ€è¿‘Yè½´åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨çš„æµ‹é‡å€¼(é«˜8ä½)
-#define MPU6050_REGISTER_ACCEL_YOUTL			0x3E		//å­˜å‚¨æœ€è¿‘Yè½´åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨çš„æµ‹é‡å€¼(ä½Ž8ä½)
-#define MPU6050_REGISTER_ACCEL_ZOUTH			0x3F		//å­˜å‚¨æœ€è¿‘Zè½´åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨çš„æµ‹é‡å€¼(é«˜8ä½)
-#define MPU6050_REGISTER_ACCEL_ZOUTL			0x40		//å­˜å‚¨æœ€è¿‘Zè½´åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨çš„æµ‹é‡å€¼(ä½Ž8ä½)
-#define MPU6050_REGISTER_TEMP_OUTH				0x41		//å­˜å‚¨æœ€è¿‘æ¸©åº¦ä¼ æ„Ÿå™¨çš„æµ‹é‡å€¼(é«˜8ä½)
-#define MPU6050_REGISTER_TEMP_OUTL				0x42		//å­˜å‚¨æœ€è¿‘æ¸©åº¦ä¼ æ„Ÿå™¨çš„æµ‹é‡å€¼(ä½Ž8ä½)
-#define	MPU6050_REGISTER_GYRO_XOUTH				0x43		//å­˜å‚¨æœ€è¿‘Xè½´é™€èžºä»ªçš„æµ‹é‡å€¼(é«˜8ä½)
-#define MPU6050_REGISTER_GYRO_XOUTL				0x44		//å­˜å‚¨æœ€è¿‘Xè½´é™€èžºä»ªçš„æµ‹é‡å€¼(ä½Ž8ä½)
-#define MPU6050_REGISTER_GYRO_YOUTH				0x45		//å­˜å‚¨æœ€è¿‘Yè½´é™€èžºä»ªçš„æµ‹é‡å€¼(é«˜8ä½)
-#define MPU6050_REGISTER_GYRO_YOUTL				0x46		//å­˜å‚¨æœ€è¿‘Yè½´é™€èžºä»ªçš„æµ‹é‡å€¼(ä½Ž8ä½)
-#define MPU6050_REGISTER_GYRO_ZOUTH				0x47		//å­˜å‚¨æœ€è¿‘Zè½´é™€èžºä»ªçš„æµ‹é‡å€¼(é«˜8ä½)
-#define MPU6050_REGISTER_GYRO_ZOUTL				0x48		//å­˜å‚¨æœ€è¿‘Zè½´é™€èžºä»ªçš„æµ‹é‡å€¼(ä½Ž8ä½)
-#define MPU6050_REGISTER_PWR_MGMT_1				0x6B		//ç”µæºç®¡ç†1
-#define MPU6050_REGISTER_PWR_MGMT_2				0x6C		//ç”µæºç®¡ç†2
-#define MPU6050_REGISTER_WHO_AM_I					0x75		//ä»Žæœºåœ°å€å¯„å­˜å™¨
+#define MPU6050_REGISTER_SELF_TEST_X      0x0D    //XÖá×Ô²âÖµ
+#define MPU6050_REGISTER_SELF_TEST_Y      0x0E    //YÖá×Ô²âÖµ
+#define MPU6050_REGISTER_SELF_TEST_Z      0x0F    //ZÖá×Ô²âÖµ
+#define MPU6050_REGISTER_SELF_TEST_A      0x10    //¼ÓËÙ¶È×Ô²âÖµ
+#define MPU6050_REGISTER_SMPLRT_DIV       0x19    //Êä³ö·ÖÆµ
+#define MPU6050_REGISTER_CONFIG           0x1A    //µÍÍ¨ÂË²¨Æ÷
+#define MPU6050_REGISTER_GYRO_CONFIG      0x1B    //X,Y,ZÖáÍÓÂÝÒÇ×Ô¼ì,Ñ¡ÔñÍÓÂÝÒÇÁ¿³Ì
+#define MPU6050_REGISTER_ACCEL_CONFIG     0x1C    //X,Y,ZÖá¼ÓËÙ¶È´«¸ÐÆ÷×Ô¼ì,¼ÓËÙ¶È´«¸ÐÆ÷Á¿³ÌÑ¡Ôñ
+#define MPU6050_REGISTER_FIFO_EN          0x23    //FIFOÊ¹ÄÜ¼Ä´æÆ÷
+#define MPU6050_REGISTER_INT_ENABLE       0x38    //ÖÐ¶ÏÊ¹ÄÜ¼Ä´æÆ÷
+#define MPU6050_REGISTER_INT_STATUS       0x3A    //ÖÐ¶Ï×´Ì¬¼Ä´æÆ÷
+#define MPU6050_REGISTER_ACCEL_XOUTH      0x3B    //´æ´¢×î½üXÖá¼ÓËÙ¶È´«¸ÐÆ÷µÄ²âÁ¿Öµ(¸ß8Î»)
+#define MPU6050_REGISTER_ACCEL_XOUTL      0x3C    //´æ´¢×î½üXÖá¼ÓËÙ¶È´«¸ÐÆ÷µÄ²âÁ¿Öµ(µÍ8Î»)
+#define MPU6050_REGISTER_ACCEL_YOUTH      0x3D    //´æ´¢×î½üYÖá¼ÓËÙ¶È´«¸ÐÆ÷µÄ²âÁ¿Öµ(¸ß8Î»)
+#define MPU6050_REGISTER_ACCEL_YOUTL      0x3E    //´æ´¢×î½üYÖá¼ÓËÙ¶È´«¸ÐÆ÷µÄ²âÁ¿Öµ(µÍ8Î»)
+#define MPU6050_REGISTER_ACCEL_ZOUTH      0x3F    //´æ´¢×î½üZÖá¼ÓËÙ¶È´«¸ÐÆ÷µÄ²âÁ¿Öµ(¸ß8Î»)
+#define MPU6050_REGISTER_ACCEL_ZOUTL      0x40    //´æ´¢×î½üZÖá¼ÓËÙ¶È´«¸ÐÆ÷µÄ²âÁ¿Öµ(µÍ8Î»)
+#define MPU6050_REGISTER_TEMP_OUTH        0x41    //´æ´¢×î½üÎÂ¶È´«¸ÐÆ÷µÄ²âÁ¿Öµ(¸ß8Î»)
+#define MPU6050_REGISTER_TEMP_OUTL        0x42    //´æ´¢×î½üÎÂ¶È´«¸ÐÆ÷µÄ²âÁ¿Öµ(µÍ8Î»)
+#define MPU6050_REGISTER_GYRO_XOUTH       0x43    //´æ´¢×î½üXÖáÍÓÂÝÒÇµÄ²âÁ¿Öµ(¸ß8Î»)
+#define MPU6050_REGISTER_GYRO_XOUTL       0x44    //´æ´¢×î½üXÖáÍÓÂÝÒÇµÄ²âÁ¿Öµ(µÍ8Î»)
+#define MPU6050_REGISTER_GYRO_YOUTH       0x45    //´æ´¢×î½üYÖáÍÓÂÝÒÇµÄ²âÁ¿Öµ(¸ß8Î»)
+#define MPU6050_REGISTER_GYRO_YOUTL       0x46    //´æ´¢×î½üYÖáÍÓÂÝÒÇµÄ²âÁ¿Öµ(µÍ8Î»)
+#define MPU6050_REGISTER_GYRO_ZOUTH       0x47    //´æ´¢×î½üZÖáÍÓÂÝÒÇµÄ²âÁ¿Öµ(¸ß8Î»)
+#define MPU6050_REGISTER_GYRO_ZOUTL       0x48    //´æ´¢×î½üZÖáÍÓÂÝÒÇµÄ²âÁ¿Öµ(µÍ8Î»)
+#define MPU6050_REGISTER_PWR_MGMT_1       0x6B    //µçÔ´¹ÜÀí1
+#define MPU6050_REGISTER_PWR_MGMT_2       0x6C    //µçÔ´¹ÜÀí2
+#define MPU6050_REGISTER_WHO_AM_I         0x75    //´Ó»úµØÖ·¼Ä´æÆ÷
 
 /********************** CONFIG **********************/
-typedef enum                                                            //æ»¤æ³¢å™¨è®¾ç½®
+typedef enum                                                            //ÂË²¨Æ÷ÉèÖÃ
 { 
 	DLPF_CFG_BANDWIDTH_260 = 0x00,
 	DLPF_CFG_BANDWIDTH_184 = 0x01,
@@ -73,14 +75,14 @@ typedef enum                                                            //æ»¤æ³¢
 
 /********************** GYRO_CONFIG **********************/
 
-#define XG_ST 	0x80                                                    //å¼€å¯Xè½´é™€èžºä»ªè‡ªæ£€
-#define YG_ST 	0x40
-#define ZG_ST 	0x20
-#define XYZG_ST	0xE0
+#define XG_ST   0x80    //¿ªÆôXÖáÍÓÂÝÒÇ×Ô¼ì
+#define YG_ST   0x40
+#define ZG_ST   0x20
+#define XYZG_ST 0xE0
 
-typedef enum                                                            //é™€èžºä»ªé‡ç¨‹
+typedef enum            //ÍÓÂÝÒÇÁ¿³Ì
 { 
-	FS_SEL_250 = 0x00,
+	FS_SEL_250 = 0x00, //int16ÂúÁ¿³ÌÎª¡À250¡ã/s
 	FS_SEL_500 = 0x08,
 	FS_SEL_1000 = 0x10,
 	FS_SEL_2000 = 0x18,
@@ -88,14 +90,14 @@ typedef enum                                                            //é™€èžº
 
 /********************** ACCEL_CONFIG **********************/
 
-#define XA_ST           0x80                                            //å¼€å¯Xè½´åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨è‡ªæ£€
-#define YA_ST 	        0x40
-#define ZA_ST           0x20
-#define XYZA_ST	        0xE0
+#define XA_ST    0x80   //¿ªÆôXÖá¼ÓËÙ¶È´«¸ÐÆ÷×Ô¼ì
+#define YA_ST    0x40
+#define ZA_ST    0x20
+#define XYZA_ST  0xE0
 
-typedef enum                                                            //åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨é‡ç¨‹
+typedef enum            //¼ÓËÙ¶È´«¸ÐÆ÷Á¿³Ì
 { 
-	AFS_SEL_2G = 0x00,
+	AFS_SEL_2G = 0x00,  //int16ÂúÁ¿³ÌÎª¡À2G
 	AFS_SEL_4G = 0x08,
 	AFS_SEL_8G = 0x10,
 	AFS_SEL_16G = 0x18,
@@ -103,7 +105,7 @@ typedef enum                                                            //åŠ é€Ÿ
 
 /********************** FIFO_EN **********************/
 
-#define TEMP_FIFO_EN		0x80                                    //FIFOå‚¨å­˜æ¸©åº¦ä¼ æ„Ÿå™¨æ•°æ®
+#define TEMP_FIFO_EN		0x80  //FIFO´¢´æÎÂ¶È´«¸ÐÆ÷Êý¾Ý
 #define XG_FIFO_EN			0x40
 #define YG_FIFO_EN			0x20
 #define ZG_FIFO_EN			0x10
@@ -114,10 +116,10 @@ typedef enum                                                            //åŠ é€Ÿ
 
 /********************** PWR_MGMT_1 **********************/
 
-#define DEVICE_RESET		0x80                                            //ç½®1æ¥å¤ä½æ‰€æœ‰çš„å¯„å­˜å™¨,å¤ä½å®Œæˆä»¥åŽè‡ªåŠ¨ç½®0
-#define SLEEP           0x40                                            //è¿›å…¥ç¡çœ æ¨¡å¼(ä½ŽåŠŸè€—æ¨¡å¼)
-#define CYCLE           0x20                                            //å½“æ­¤ä½ä¸º1è€ŒSLEEPä¸º0æ—¶,è¿›å…¥å¾ªçŽ¯æ¨¡å¼.è®¾å¤‡åœ¨ç¡çœ æ¨¡å¼å’Œå”¤é†’ä¹‹é—´å¾ªçŽ¯
-#define TEMP_DIS        0x08                                            //å…³é—­æ¸©åº¦ä¼ æ„Ÿå™¨
+#define DEVICE_RESET    0x80  //ÖÃ1À´¸´Î»ËùÓÐµÄ¼Ä´æÆ÷,¸´Î»Íê³ÉÒÔºó×Ô¶¯ÖÃ0
+#define SLEEP           0x40  //½øÈëË¯ÃßÄ£Ê½(µÍ¹¦ºÄÄ£Ê½)
+#define CYCLE           0x20  //µ±´ËÎ»Îª1¶øSLEEPÎª0Ê±,½øÈëÑ­»·Ä£Ê½.Éè±¸ÔÚË¯ÃßÄ£Ê½ºÍ»½ÐÑÖ®¼äÑ­»·
+#define TEMP_DIS        0x08  //¹Ø±ÕÎÂ¶È´«¸ÐÆ÷
 
 typedef enum
 {
@@ -130,10 +132,34 @@ typedef enum
 	CLKSEL_STOP = 0x07,
 }CLKSEL_TypeDef;
 
-#define MPU6050_DMP_EN                  1                       //é€šè¿‡è¿™ä¸ªå®æ¥åˆ¤æ–­æ˜¯å¦å¼€å¯DMPåŠŸèƒ½ï¼Œå…³é—­åŽä¸éœ€è¦åŒ…å«DMPçš„å¤´æ–‡ä»¶
+/***************** ÖØÒªºê¶¨Òå *****************/
+#define MPU6050_DMP_EN        1           //Í¨¹ýÕâ¸öºêÀ´ÅÐ¶ÏÊÇ·ñ¿ªÆôDMP¹¦ÄÜ£¬¹Ø±Õºó²»ÐèÒª°üº¬DMPµÄÍ·ÎÄ¼þ
 
-uint8_t MPU6050_Init(void);
+#if MPU6050_DMP_EN == 0       //Èç¹û²»¿ªÆôÍÓÂÝÒÇµÄDMP¹¦ÄÜ,Ôò¿ÉÒÔÑ¡ÔñÁ¿³Ì
+
+#define MPU6050_AFS_SEL       AFS_SEL_2G  //ÉèÖÃ¼ÓËÙ¶È¼ÆµÄÁ¿³Ì,¼ûAFS_SEL_TypeDef
+#define MPU6050_FS_SEL        FS_SEL_2000 //ÉèÖÃ½ÇËÙ¶È¼ÆµÄÁ¿³Ì,¼ûFS_SEL_TypeDef
+#define MPU6050_OUTPUT_RATE   200         //ÉèÖÃ´«¸ÐÆ÷Êä³öµÄÆµÂÊ(µ¥Î»Hz),ÓÉÓÚ¼Ä´æÆ÷¼ÆËã¹«Ê½Îª(1000/MPU6050_OUTPUT_RATE - 1)ÎªÕûÊý,
+                                          //ËùÒÔ¸ÃÖµ×îºÃÈ¡1000, 500, 200, 100,·ñÔòÊµ¼ÊÊä³öËÙÂÊÓë¸ÃÉè¶¨Öµ»á´æÔÚ²îÒì
+
+#else                         //Èç¹û¿ªÆôÍÓÂÝÒÇµÄDMP¹¦ÄÜ,ÎÞ·¨ÉèÖÃÁ¿³Ì,ÍÓÂÝÒÇÁ¿³ÌÎª¡À2000£¬¼ÓËÙ¶È¼ÆÎª¡À2G
+
+#define MPU6050_OUTPUT_RATE   200         //(ÍÆ¼ö200)ÉèÖÃ´«¸ÐÆ÷Êä³öµÄÆµÂÊ(µ¥Î»Hz),×îºÃÈ¡1000, 500, 200, 100
+#define MPU6050_DMP_RATE      100         //(ÍÆ¼ö100)ÉèÖÃDMPÊý¾Ý´¦ÀíÊä³öÆµÂÊ(µ¥Î»Hz),×¢Òâ¸ÃÖµ·Ç³£ÖØÒªÊ×ÏÈËûÒªÐ¡ÓÚµÈÓÚMPU6050_OUTPUT_RATE,
+                                          //Æä´Î,³ÌÐò±ØÐëÒÔ¸ÃÆµÂÊÖÜÆÚÐÔµØµ÷ÓÃMPU6050_DMPGetDataº¯ÊýÀ´¶ÁÈ¡DMPÊýÖµ,·ñÔòDMPµÄÊý¾Ý»º³åÇø»áÒòÎª
+                                          //Êý¾Ý¶ÁÈ¡ÆµÂÊ¹ýÂý¶ø±¬Âú,»òÒòÎªÊý¾Ý¶ÁÈ¡¹ý¿ì¶øÎÞÊý¾Ý¿É¶Á.Õâ¶¼µ¼ÖÂMPU6050_DMPGetDataµ÷ÓÃÊ§°Ü,¶øÔÚ
+                                          //DMPµÄµ×²ãÖÐ,Ò»µ©µ÷ÓÃÊ§°Ü,µ×²ã»á¸´Î»´«¸ÐÆ÷,CPU»á½øÈë¼¸Ê®ºÁÃëµÄËÀµÈ.
+#endif
+
+/****************** Òý½ÅÑ¡Ôñ ******************/
+#define MPU6050_SDA_Pin       B3
+#define MPU6050_SCL_Pin       B2
+
+/****************** ¿Éµ÷ÓÃº¯Êý ******************/
 uint8_t MPU6050_ReadData(MPU6050_DATA_TypeDef Data_Type, int16_t *data);
+#if MPU6050_DMP_EN == 0
+uint8_t MPU6050_Init(void);
+#endif
 #if MPU6050_DMP_EN == 1
 uint8_t MPU6050_DMPInit(void);
 uint8_t MPU6050_SelfTest(void);

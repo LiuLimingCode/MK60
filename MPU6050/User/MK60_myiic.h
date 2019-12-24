@@ -1,36 +1,38 @@
 /*!
- * @file       myiic.h
- * @brief      模拟IIC函数实现
- * @author     刘力铭
+ * @文件       myiic.h
+ * @功能       模拟IIC函数实现
+ * @作者       刘力铭
+ * @完成时间   2019-12
  */
+ 
 #ifndef __MK60_MYIIC_H
 #define __MK60_MYIIC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "headfile.h"
 
+/***************** 重要宏定义 *****************/
 #define NOP()   for(int tempdely = 0; tempdely < 2; ++tempdely);//增加IIC通讯的延时时间，提高稳定性
 
-#define MY_SCL_GPIO                     B2
-#define MY_SDA_GPIO                     B3
+//为方便移植,可以直接更改宏定义实现相同功能
+#define MYIIC_GPIO_SET_BITS(x)    gpio_set(x ,1)       //将引脚输出高电平
+#define MYIIC_GPIO_RESET_BITS(x)  gpio_set(x, 0)       //将引脚输出低电平
+#define MYIIC_GPIO_SET_OUT(x)     gpio_init(x, GPO, 0) //将引脚设置为输出模式,默认输出低电平
+#define MYIIC_GPIO_SET_IN(x)      gpio_init(x, GPI, 1) //将引脚设置为输入模式,默认上拉
+#define MYIIC_GPIO_READ(x)        gpio_get(x)          //读取引脚输入电平
 
-#define MY_SCL_H                        gpio_set(MY_SCL_GPIO, 1)
-#define MY_SCL_L                        gpio_set(MY_SCL_GPIO, 0)
-
-#define MY_SDA_H                        gpio_set(MY_SDA_GPIO, 1)
-#define MY_SDA_L                        gpio_set(MY_SDA_GPIO, 0)
-
-#define MY_READ_SDA                     gpio_get(MY_SDA_GPIO)
-
-#define MY_SET_SDA_IN                   gpio_init(MY_SDA_GPIO, GPI, 1)
-#define MY_SET_SDA_OUT                  gpio_init(MY_SDA_GPIO, GPO, 0)
-
-#define MY_SET_SCL_IN                   gpio_ddr(MY_SCL_GPIO, GPI)
-#define MY_SET_SCL_OUT                  gpio_ddr(MY_SCL_GPIO, GPO)
-
-void IIC_Init(void);
-uint8_t IIC_ReadRegister(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t *data);
-uint8_t IIC_ReadRegisterLen(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t len, uint8_t *buf);
-uint8_t IIC_WriteRegister(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t REG_data);
-uint8_t IIC_WriteRegisterLen(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t len, uint8_t *buf);
+/****************** 可调用函数 ******************/
+void IIC_Init(PTX_n sdaPin, PTX_n sclPin);
+uint8_t IIC_ReadRegister(PTX_n sdaPin, PTX_n sclPin, uint8_t SlaveAddress, uint8_t REG_Address, uint8_t *data);
+uint8_t IIC_ReadRegisterLen(PTX_n sdaPin, PTX_n sclPin, uint8_t SlaveAddress, uint8_t REG_Address, uint8_t len, uint8_t *buf);
+uint8_t IIC_WriteRegister(PTX_n sdaPin, PTX_n sclPin, uint8_t SlaveAddress, uint8_t REG_Address, uint8_t REG_data);
+uint8_t IIC_WriteRegisterLen(PTX_n sdaPin, PTX_n sclPin, uint8_t SlaveAddress, uint8_t REG_Address, uint8_t len, uint8_t *buf);
+	
+#ifdef __cplusplus
+}
+#endif
 
 #endif
