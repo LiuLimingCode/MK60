@@ -48,6 +48,7 @@
 #include "MK60_sdhc.h"
 
 #include "MK60_oled.h"
+#include "MK60_myspi.h"
 #include "menu.h"
 
 #include "isr.h"

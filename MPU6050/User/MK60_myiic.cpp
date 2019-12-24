@@ -251,7 +251,7 @@ uint8_t IIC_ReadRegisterLen(PTX_n sdaPin, PTX_n sclPin, uint8_t SlaveAddress, ui
 	if(base.IIC_SendByte(SlaveAddress << 1 | 1)) return 1;
 	while(len)
 	{
-		(len == 1)?((*buf) = base.IIC_ReadByte(0)) : ((*buf) = base.IIC_ReadByte(1));
+		(len == 1) ? ((*buf) = base.IIC_ReadByte(0)) : ((*buf) = base.IIC_ReadByte(1));
 		--len;
 		++buf;
 	}

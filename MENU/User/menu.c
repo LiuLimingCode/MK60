@@ -121,7 +121,7 @@ static void __showHomePage(const Menu_Unit* menu, uint8 isUpdateAll, int8 cursor
 	if(isUpdateAll)
 	{
 		uint8 temp;
-		OLED_ClearScreen(BLACK);//清屏
+		OLED_ClearScreen(OLED_BLACK);//清屏
 		OLED_P6x8Str((OLED_X_MAX - 1 - 6 * (sizeof("Menu") - 1)) / 2, 0, "Menu");//显示界面
 		OLED_P6x8Str(MENU_SHOW_VARIABLE(0), MENU_SHOW_ROW(0), "CloseMenu");
 		
@@ -165,7 +165,7 @@ static void __showUintPage(const Menu_Unit* unit, int16* value, uint8 isUpdateAl
 	if(isUpdateAll)
 	{
 		uint8 number;
-		OLED_ClearScreen(BLACK);//清屏
+		OLED_ClearScreen(OLED_BLACK);//清屏
 		for(number = 0; unit->UintTitle[number] != 0; ++number);//显示界面
 		OLED_P6x8Str((OLED_X_MAX - 1 - 6 * number) / 2, 0, (char*)unit->UintTitle);
 		
@@ -213,7 +213,7 @@ static void __showUintPage(const Menu_Unit* unit, int16* value, uint8 isUpdateAl
 static void __changePages(void)
 {
 	while(gpio_get(MENU_BUTTON_CONFIRM) == 0);
-	OLED_ClearScreen(BLACK);
+	OLED_ClearScreen(OLED_BLACK);
 }
 
 //-------------------------------------------------------------------------

@@ -13,7 +13,7 @@ uint8 uint8_1 = 2, uint8_2 = 3, uint8_3 = 4, uint8_4 = 3, uint8_5 = 6;
 
 int main(void)
 {
-	get_clk();//ä¸Šç”µåå¿…é¡»è¿è¡Œä¸€æ¬¡è¿™ä¸ªå‡½æ•°ï¼Œè·å–å„ä¸ªé¢‘ç‡ä¿¡æ¯
+	get_clk();//ÉÏµçºó±ØĞëÔËĞĞÒ»´ÎÕâ¸öº¯Êı£¬»ñÈ¡¸÷¸öÆµÂÊĞÅÏ¢
   
 	OLED_Init();
 	gpio_init(BUZZ, GPO, 0);
@@ -25,15 +25,15 @@ int main(void)
 	
 	Menu menu = {0};
 	
-	//èœå•è®¾ç½®
-	//ä¾‹å¦‚
+	//²Ëµ¥ÉèÖÃ
+	//ÀıÈç
 	//
-	//menu[3].UintTitle = "PID_SPEED";                 //èœå•ä¸»ç•Œé¢æ˜¾ç¤ºçš„æ˜¯PID_SPEED
-	//menu[3].VariableAddr[0] = &PID.Proportion;       //èœå•å•å…ƒç•Œé¢æ˜¾ç¤ºçš„ç¬¬ä¸€ä¸ªå˜é‡çš„åœ°å€æ˜¯&PID.Proportion
-	//menu[3].VariableType[0] = "SPEED_P";             //èœå•å•å…ƒç•Œé¢æ˜¾ç¤ºçš„ç¬¬ä¸€ä¸ªå˜é‡ä¸ºSPEED_P
-	//menu[3].VariableType[0] = VariableType_Int16;    //èœå•å•å…ƒç•Œé¢æ˜¾ç¤ºçš„ç¬¬ä¸€ä¸ªå˜é‡çš„ç±»å‹,ä»VariableTypeDefé€‰å–ä¸€ä¸ª,ç±»å‹é€‰æ‹©é”™è¯¯ä¼šæ­»æœºï¼ï¼ï¼
-	//æ³¨æ„,menuæ•°ç»„é€‰æ‹©èŒƒå›´ä¸º0~(MENU_UNITS_MAX-1),menu.Variableæ•°ç»„çš„é€‰æ‹©èŒƒå›´æ˜¯0~(UNIT_VARIABLES_MAX-1)ï¼ï¼ï¼
-	//æ³¨æ„,æœ€å¤§å˜é‡æ•°è§menu.hä¸‹çš„VARIABLE_STORE_NUMå®å®šä¹‰
+	//menu[3].UintTitle = "PID_SPEED";                 //²Ëµ¥Ö÷½çÃæÏÔÊ¾µÄÊÇPID_SPEED
+	//menu[3].VariableAddr[0] = &PID.Proportion;       //²Ëµ¥µ¥Ôª½çÃæÏÔÊ¾µÄµÚÒ»¸ö±äÁ¿µÄµØÖ·ÊÇ&PID.Proportion
+	//menu[3].VariableType[0] = "SPEED_P";             //²Ëµ¥µ¥Ôª½çÃæÏÔÊ¾µÄµÚÒ»¸ö±äÁ¿ÎªSPEED_P
+	//menu[3].VariableType[0] = VariableType_Int16;    //²Ëµ¥µ¥Ôª½çÃæÏÔÊ¾µÄµÚÒ»¸ö±äÁ¿µÄÀàĞÍ,´ÓVariableTypeDefÑ¡È¡Ò»¸ö,ÀàĞÍÑ¡Ôñ´íÎó»áËÀ»ú£¡£¡£¡
+	//×¢Òâ,menuÊı×éÑ¡Ôñ·¶Î§Îª0~(MENU_UNITS_MAX-1),menu.VariableÊı×éµÄÑ¡Ôñ·¶Î§ÊÇ0~(UNIT_VARIABLES_MAX-1)£¡£¡£¡
+	//×¢Òâ,×î´ó±äÁ¿Êı¼ûmenu.hÏÂµÄVARIABLE_STORE_NUMºê¶¨Òå
 	
 	menu[0].UintTitle = "0123";
 	menu[0].VariableAddr[0] = &int16_1;
@@ -68,8 +68,8 @@ int main(void)
 	menu[8].VariableName[3] = "float_3";
 	menu[8].VariableType[3] = VariableType_Float;
 	
-	Menu_Init(menu);                              //åˆå§‹åŒ–èœå•,åœ¨è°ƒç”¨è¯¥å‡½æ•°å‰,è¯·ç¡®ä¿å¤–éƒ¨èµ„æº(GPIO,å¤–éƒ¨å­˜å‚¨å™¨,å¤–éƒ¨æ˜¾ç¤ºå™¨)çš„åˆå§‹åŒ–
-	while(!Menu_Work()) systick_delay_ms(200);    //èœå•æ¯200mså·¥ä½œä¸€æ¬¡ï¼Œå¹¶æ ¹æ®æ˜¯å¦æŒ‰ä¸‹â€œå…³é—­èœå•â€é€‰é¡¹åï¼ˆå‡½æ•°è¿”å›0ï¼‰ç»“æŸæ­»å¾ªç¯
+	Menu_Init(menu);                              //³õÊ¼»¯²Ëµ¥,ÔÚµ÷ÓÃ¸Ãº¯ÊıÇ°,ÇëÈ·±£Íâ²¿×ÊÔ´(GPIO,Íâ²¿´æ´¢Æ÷,Íâ²¿ÏÔÊ¾Æ÷)µÄ³õÊ¼»¯
+	while(!Menu_Work()) systick_delay_ms(200);    //²Ëµ¥Ã¿200ms¹¤×÷Ò»´Î£¬²¢¸ù¾İÊÇ·ñ°´ÏÂ¡°¹Ø±Õ²Ëµ¥¡±Ñ¡Ïîºó£¨º¯Êı·µ»Ø0£©½áÊøËÀÑ­»·
 	
 	while(1);
 }

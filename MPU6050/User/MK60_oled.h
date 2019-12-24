@@ -1,12 +1,8 @@
 /*!
- * @file       oled.h
- * @brief      OLED函数实现(SPI)
- * @author     llm
- * @注意：区别于普通的OLED底层基于软件模拟SPI，这个底层基于K60硬件SPI编写。
-          优点是通讯速度远远大于前者(大概10倍)，CPU占用率远远小于前者。
-    但是！务必确保电路设计时，OLED连接的SCK、SDA(D0,D1)选为PORT_cfg.h中的SPI固定引脚。(非常重要！！！)
-          电路设计时在选择SPIX_SCK SPIX_SOUT 后最好不要再使用对应的SPIX_SIN引脚，因为该引脚会在SPI底层中配置为输入模式
-          该底层涉及大量寄存器操作，故基本不允许跨芯片移植程序，如K60程序移植到KEA128芯片后该底层无法使用。(普通OLED底层移植性好)
+ * @文件       oled.h
+ * @功能       OLED函数实现
+ * @作者       刘力铭
+ * @完成时间   2019-12
  */
 
 #ifndef __MK60_OLED_H
@@ -14,33 +10,49 @@
 
 #include "headfile.h"
 
-/***************** 引脚选择 *****************/
+/***************** 重要宏定义 *****************/
+#define OLED_X_MAX             128            //OLED的列像素大小
+#define OLED_Y_MAX             64             //OLED的行像素大小
+#define OLED_PAGE_MAX          (OLED_Y_MAX/8) //OLED将8行像素一起控制
+#define OLED_WHITE             (uint8_t)0XFF  //白色
+#define OLED_BLACK             (uint8_t)0X00  //黑色
 
-#define OLED_SPI       spi0                     //具体的SCK、SDA(D0、D1)在PORT_cfg.h中更改SPIX_SCK、SPIX_SOUT
+//是否选用硬件SPI：0为使用模拟SPI,1为使用硬件SPI,硬件软件SPI描述见MK_myspi.h
+#define OLED_SPI_HARDWARE      1
 
+//是否启用片选引脚：0为不启用,1为启用.增加片选引脚可以增加SPI通讯稳定,但需要把单片机引脚连接到OLED的CS引脚上.若不启用,OLED上的CS引脚必须接地
+#define OLED_SPI_USE_CS	       0
+
+/****************** 引脚选择 ******************/
 #define OLED_DC_Pin    A13
-
 #define OLED_RES_Pin   A12
 
-#define OLED_RSTH 	gpio_set(OLED_RES_Pin, 1)
-#define OLED_RSTL 	gpio_set(OLED_RES_Pin, 0)
+#define OLED_RSTH      gpio_set(OLED_RES_Pin, 1)
+#define OLED_RSTL      gpio_set(OLED_RES_Pin, 0)
 
-#define OLED_DCH  	gpio_set(OLED_DC_Pin, 1)
-#define OLED_DCL  	gpio_set(OLED_DC_Pin, 0)
+#define OLED_DCH       gpio_set(OLED_DC_Pin, 1)
+#define OLED_DCL       gpio_set(OLED_DC_Pin, 0)
 
-#define OLED_X_MAX 				128
-#define OLED_Y_MAX 				64
-#define OLED_PAGE_MAX  		(OLED_Y_MAX/8)
-#define WHITE 						(uint8_t)0XFF
-#define BLACK							(uint8_t)0X00
+#if OLED_SPI_USE_CS == 1 //启用片选引脚,若不启用,下面的宏不需要填
+#define OLED_CS_Pin    A14
+#define OLED_CSH       gpio_set(OLED_CS_Pin, 1)
+#define OLED_CSL       gpio_set(OLED_CS_Pin, 0)
+#endif
 
+#if OLED_SPI_HARDWARE == 0 //使用模拟SPI,在这个情况下可以不定义OLED_SPI
+#define OLED_SDA_Pin   A16 //D1
+#define OLED_SCL_Pin   A15 //D0
+#else                      //使用硬件SPI,在这个情况下可以不定OLED_SDA_Pin和OLED_SCL_Pin
+#define OLED_SPI       spi0//具体的SCK、SDA(D0、D1)引脚在PORT_cfg.h中更改SPIX_SCK、SPIX_SOUT
+#endif
+
+/****************** 可调用函数 ******************/
 void OLED_Init(void);
-void OLED_Cmd(char NewState);
 void OLED_ClearScreen(uint8_t color);
 void OLED_P6x8Char(uint8_t x, uint8_t y, char ch);
 void OLED_P6x8Str(uint8_t x, uint8_t y, const char *ch);
 void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set);
-void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set);
+void OLED_P6x8Flo(uint8_t x, uint8_t y, double data1, int8 set);
 void OLED_P8x16Char(uint8_t x, uint8_t y, char ch);
 void OLED_P8x16Str(uint8_t x, uint8_t y, const char *ch);
 void OLED_P14x16CHCHAR(uint8_t x, uint8_t y, const char *ch);

@@ -52,7 +52,7 @@ void OLED_ClearScreen(uint8_t color);
 void OLED_P6x8Char(uint8_t x, uint8_t y, char ch);
 void OLED_P6x8Str(uint8_t x, uint8_t y, const char *ch);
 void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set);
-void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set);
+void OLED_P6x8Flo(uint8_t x, uint8_t y, double data1, int8 set);
 void OLED_P8x16Char(uint8_t x, uint8_t y, char ch);
 void OLED_P8x16Str(uint8_t x, uint8_t y, const char *ch);
 void OLED_P14x16CHCHAR(uint8_t x, uint8_t y, const char *ch);

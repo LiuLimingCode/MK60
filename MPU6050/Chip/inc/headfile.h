@@ -48,6 +48,7 @@
 #include "MK60_sdhc.h"
 
 #include "MK60_oled.h"
+#include "MK60_myspi.h"
 #include "MK60_mpu6050.h"
 #include "MK60_myiic.h"
 

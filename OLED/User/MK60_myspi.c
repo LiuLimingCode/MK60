@@ -61,7 +61,7 @@ void SPI_SendDataSimulated(PTX_n sdaPin, PTX_n sclPin, uint8 data)
 #define MYSPI_GPIO_RESET_BITS(x)  gpio_set(x, 0)
 	uint8_t temp = 8;
 	
-	MYSPI_GPIO_SET_BITS(sclPin);
+	MYSPI_GPIO_RESET_BITS(sclPin);
 	while (temp--)
 	{
 		if (data & 0x80) MYSPI_GPIO_SET_BITS(sdaPin);

@@ -6,6 +6,7 @@
  */
 
 #include "MK60_oled.h"
+#include "MK60_myspi.h"
 #include "charcode.h"
 
 static void OLED_WriteDat(uint8_t data);
@@ -150,7 +151,7 @@ void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
 	if(set == 0) 
 	{
 		int16_t temp = data1;
-		for(set = 1; temp /= 10 != 0; ++set);
+		for(set = 1; (temp /= 10) != 0; ++set);
 		if(data1 < 0) set *= -1;
 	}
 	
@@ -192,7 +193,7 @@ void OLED_P6x8Int(uint8_t x, uint8_t y, int16_t data1, int8 set)
 //              OLED_P6x8Flo(0, 0, 100.0/3, -3);   //在屏幕(0,0)位置显示 +033.33
 //              OLED_P6x8Flo(0, 0, 100.0/3, 0);    //在屏幕(0,0)位置显示 33.33
 //----------------------------------------------------------------------------------------
-void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set)
+void OLED_P6x8Flo(uint8_t x, uint8_t y, double data1, int8 set)
 {
 	uint8_t result[13] = {0};
 	uint32_t data2;
@@ -203,7 +204,7 @@ void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set)
 	if(set == 0) 
 	{
 		int32_t temp = data1;
-		for(set = 1; temp /= 10 != 0; ++set);
+		for(set = 1; (temp /= 10) != 0; ++set);
 		if(data1 < 0) set *= -1;
 	}
 	
@@ -234,12 +235,12 @@ void OLED_P6x8Flo(uint8_t x, uint8_t y, float data1, int8 set)
 	
 	if(set < 0)
 	{
-		result[4 + set] = result[0];
-		OLED_P6x8Str(x, y, (char *)&(result[4 + set]));
+		result[8 + set] = result[0];
+		OLED_P6x8Str(x, y, (char *)&(result[8 + set]));
 	}
 	else if(set > 0)
 	{
-		OLED_P6x8Str(x, y, (char *)&(result[5 - set]));
+		OLED_P6x8Str(x, y, (char *)&(result[9 - set]));
 	}
 }
 
