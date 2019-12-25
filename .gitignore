@@ -10,3 +10,4 @@
 *.hex
 *.dep
 *.DELL
+JLinkLog.txt

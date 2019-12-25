@@ -50,8 +50,8 @@
 //#include "msp430_clock.h"
 //#include "msp430_interrupt.h"
 
-#define i2c_write(a, b, c, d)   IIC_WriteRegisterLen(MPU6050_SDA_Pin, MPU6050_SCL_Pin, a, b, c, d)
-#define i2c_read(a, b, c, d)    IIC_ReadRegisterLen(MPU6050_SDA_Pin, MPU6050_SCL_Pin, a, b, c, d)
+#define i2c_write(a, b, c, d)   IIC_WriteBuffer(MPU6050_SDA_Pin, MPU6050_SCK_Pin, a, b, c, d)
+#define i2c_read(a, b, c, d)    IIC_ReadBuffer(MPU6050_SDA_Pin, MPU6050_SCK_Pin, a, b, c, d)
 #define delay_ms    systick_delay_ms
 #define get_ms      mget_ms
 //static inline int reg_int_cb(struct int_param_s *int_param)
@@ -59,8 +59,8 @@
 //    return msp430_reg_int_cb(int_param->cb, int_param->pin, int_param->lp_exit,
 //        int_param->active_low);
 //}
-#define log_i 	printf	//打印信息
-#define log_e  	printf	//打印信息
+#define log_i 	mlog	//打印信息
+#define log_e  	mlog	//打印信息
 /* labs is already defined by TI's toolchain. */
 /* fabs is for doubles. fabsf is for floats. */
 #define fabs        fabsf
@@ -2854,6 +2854,11 @@ lp_int_restore:
 void mget_ms(unsigned long *time)
 {
 
+}
+
+void mlog(const char* str, ...)
+{
+	
 }
 
 

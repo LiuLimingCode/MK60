@@ -24,12 +24,12 @@
 //----------------------------------------------------------------------------
 uint8_t MPU6050_Init(void)
 {
-  IIC_Init(MPU6050_SDA_Pin, MPU6050_SCL_Pin);
-  if(IIC_WriteRegister(MPU6050_SDA_Pin, MPU6050_SCL_Pin, MPU6050_ADDR, MPU6050_REGISTER_PWR_MGMT_1, 0x01))return ERR_IIC_CHECKACK_FAIL;
-  if(IIC_WriteRegister(MPU6050_SDA_Pin, MPU6050_SCL_Pin, MPU6050_ADDR, MPU6050_REGISTER_SMPLRT_DIV, (1000 / MPU6050_OUTPUT_RATE - 1)))return ERR_IIC_CHECKACK_FAIL;   //200Hz
-  if(IIC_WriteRegister(MPU6050_SDA_Pin, MPU6050_SCL_Pin, MPU6050_ADDR, MPU6050_REGISTER_CONFIG, DLPF_CFG_BANDWIDTH_94))return ERR_IIC_CHECKACK_FAIL;
-  if(IIC_WriteRegister(MPU6050_SDA_Pin, MPU6050_SCL_Pin, MPU6050_ADDR, MPU6050_REGISTER_ACCEL_CONFIG, MPU6050_AFS_SEL))return ERR_IIC_CHECKACK_FAIL;
-  if(IIC_WriteRegister(MPU6050_SDA_Pin, MPU6050_SCL_Pin, MPU6050_ADDR, MPU6050_REGISTER_GYRO_CONFIG, MPU6050_FS_SEL))return ERR_IIC_CHECKACK_FAIL;
+  IIC_Init(MPU6050_SDA_Pin, MPU6050_SCK_Pin);
+  if(IIC_WriteData(MPU6050_SDA_Pin, MPU6050_SCK_Pin, MPU6050_ADDR, MPU6050_REGISTER_PWR_MGMT_1, 0x01))return ERR_IIC_CHECKACK_FAIL;
+  if(IIC_WriteData(MPU6050_SDA_Pin, MPU6050_SCK_Pin, MPU6050_ADDR, MPU6050_REGISTER_SMPLRT_DIV, (1000 / MPU6050_OUTPUT_RATE - 1)))return ERR_IIC_CHECKACK_FAIL;   //200Hz
+  if(IIC_WriteData(MPU6050_SDA_Pin, MPU6050_SCK_Pin, MPU6050_ADDR, MPU6050_REGISTER_CONFIG, DLPF_CFG_BANDWIDTH_94))return ERR_IIC_CHECKACK_FAIL;
+  if(IIC_WriteData(MPU6050_SDA_Pin, MPU6050_SCK_Pin, MPU6050_ADDR, MPU6050_REGISTER_ACCEL_CONFIG, MPU6050_AFS_SEL))return ERR_IIC_CHECKACK_FAIL;
+  if(IIC_WriteData(MPU6050_SDA_Pin, MPU6050_SCK_Pin, MPU6050_ADDR, MPU6050_REGISTER_GYRO_CONFIG, MPU6050_FS_SEL))return ERR_IIC_CHECKACK_FAIL;
   return NO_ERR;
 }
 #endif
@@ -46,8 +46,8 @@ uint8_t MPU6050_ReadData(MPU6050_DATA_TypeDef Data_Type, int16_t *data)
 	uint8_t Register_Arr;
 	uint8_t dat_h, dat_l;
 	Register_Arr = MPU6050_REGISTER_ACCEL_XOUTH + Data_Type * 2;
-	if(IIC_ReadRegister(MPU6050_SDA_Pin, MPU6050_SCL_Pin, MPU6050_ADDR, Register_Arr, &dat_h))return ERR_IIC_CHECKACK_FAIL;
-	if(IIC_ReadRegister(MPU6050_SDA_Pin, MPU6050_SCL_Pin, MPU6050_ADDR, Register_Arr + 1, &dat_l))return ERR_IIC_CHECKACK_FAIL;
+	if(IIC_ReadData(MPU6050_SDA_Pin, MPU6050_SCK_Pin, MPU6050_ADDR, Register_Arr, &dat_h))return ERR_IIC_CHECKACK_FAIL;
+	if(IIC_ReadData(MPU6050_SDA_Pin, MPU6050_SCK_Pin, MPU6050_ADDR, Register_Arr + 1, &dat_l))return ERR_IIC_CHECKACK_FAIL;
 	*data = (int16_t)((dat_h << 8) | dat_l);
 	return NO_ERR;
 }
@@ -70,24 +70,24 @@ static signed char gyro_orientation[9] = { 1, 0, 0,
 uint8_t MPU6050_DMPInit(void)
 {
 	uint8_t err=0;
-	IIC_Init(MPU6050_SDA_Pin, MPU6050_SCL_Pin);				//初始化IIC总线
+	IIC_Init(MPU6050_SDA_Pin, MPU6050_SCK_Pin); //初始化IIC总线
 	if(mpu_init()==0)	//初始化MPU6050
 	{
-		err = mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);//设置需要的传感器
+		err = mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL); //设置需要的传感器
 		if(err)return ERR_MPU6050INIT_FAIL; 
-		err = mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);//设置FIFO
+		err = mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL); //设置FIFO
 		if(err)return ERR_MPU6050INIT_FAIL; 
 		err = mpu_set_sample_rate(MPU6050_OUTPUT_RATE);	//设置采样率200HZ
 		if(err)return ERR_MPU6050INIT_FAIL; 
 		err = dmp_load_motion_driver_firmware();		//加载DMP固件
 		if(err)return ERR_DMPINIT_FAIL; 
-		err = dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation));//设置陀螺仪方向
+		err = dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)); //设置陀螺仪方向
 		if(err)return ERR_MPU6050INIT_FAIL; 
-		err = dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP | DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO | DMP_FEATURE_GYRO_CAL);//设置DMP功能
+		err = dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP | DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO | DMP_FEATURE_GYRO_CAL); //设置DMP功能
 		if(err)return ERR_DMPINIT_FAIL; 
-		err = dmp_set_fifo_rate(MPU6050_DMP_RATE);	//设置DMP输出速率
+		err = dmp_set_fifo_rate(MPU6050_DMP_RATE); //设置DMP输出速率
 		if(err)return ERR_DMPINIT_FAIL;   
-		//err = MPU6050_SelfTest();		//自检,建议屏蔽否则每次初始化移动陀螺仪会导致自检失败
+		//err = MPU6050_SelfTest(); //自检,建议屏蔽否则每次初始化移动陀螺仪会导致自检失败
 		//if(err)return ERR_SELTTEST_FAIL;    
 		err = mpu_set_dmp_state(1);	//使能DMP
 		if(err)return ERR_DMPINIT_FAIL;     

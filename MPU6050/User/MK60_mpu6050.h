@@ -10,6 +10,10 @@
 #ifndef __MK60_MPU6050_H
 #define __MK60_MPU6050_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "headfile.h"
 
 #define MPU6050_ADDR 0x68
@@ -156,7 +160,7 @@ typedef enum
 
 /****************** 引脚选择 ******************/
 #define MPU6050_SDA_Pin       B3
-#define MPU6050_SCL_Pin       B2
+#define MPU6050_SCK_Pin       B2
 
 /****************** 可调用函数 ******************/
 uint8_t MPU6050_ReadData(MPU6050_DATA_TypeDef Data_Type, int16_t *data);
@@ -167,6 +171,10 @@ uint8_t MPU6050_Init(void);
 uint8_t MPU6050_DMPInit(void);
 uint8_t MPU6050_SelfTest(void);
 uint8_t MPU6050_DMPGetData(float *pitch,float *roll,float *yaw);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
