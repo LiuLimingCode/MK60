@@ -1,261 +1,322 @@
 /*!
  * @文件       myiic.c
- * @功能       模拟IIC函数实现
+ * @功能       模拟IIC函数实现,整个IIC底层由C++语言编写,因为一方面,IIC的底层由C语言编写过于繁琐
+ *             一方面,我觉得这是一个很好的机会展示一下如何用C语言和C++混合编译,底层提供了C++的
+ *             函数调用接口和C语言的调用接口,自行选择.
  * @作者       刘力铭
  * @完成时间   2019-12
  */
  
 #include "MK60_myiic.h"
 
-// 其实整个IIC的底层包括所有的IIC器件,我都很想做成C++的形式,因为用C语言写很蠢
-// 但是考虑到以后的移植问题就放弃了.但是这部分的程序我实在忍不了了
-// Myiic_Base这个C++类只用到了最简单的C++语法,包括类初始化函数和类成员函数,
-// 成员函数完全可以当成普通的C语言函数来看,只不过他们都共用sdaPin和sclPin变量
-// 这个类可以用C语言的函数实现一样的功能,但没有必要.
-class Myiic_Base
+class IIC_Controller
 {
-public:
-	PTX_n sdaPin;
-	PTX_n sclPin;
+public:/****************** C++风格可调用函数 ******************/
 
-//----------------------------------------------------------
-//  @描述       类初始化函数,用来初始化sdaPin和sclPin
-//----------------------------------------------------------
-	Myiic_Base(PTX_n sda, PTX_n scl)
+	//----------------------------------------------------------
+	//  @描述       类初始化函数,用来初始化sdaPin和sckPin
+	//  @参数       sda                 IIC通讯的数据引脚
+	//  @参数       scl                 IIC通讯的时钟引脚
+	//  @参数       slaveAddress        从机地址
+	//----------------------------------------------------------
+	IIC_Controller(PTX_n sda, PTX_n sck, uint8 addr)
 	{
 		sdaPin = sda;
-		sclPin = scl;
+		sckPin = sck;
+		slaveAddress = addr;
 	}
 
-//----------------------------------------------------------
-//  @描述       模拟IIC发送起始信号
-//----------------------------------------------------------
-	void IIC_Start(void)
+	//----------------------------------------------------------
+	//  @描述       模拟IIC初始化,即初始化两个GPIO引脚
+	//----------------------------------------------------------
+	void init(void)
+	{
+		gpio_init(sdaPin, GPO, 1);
+		gpio_init(sckPin, GPO, 1);
+	}
+	
+	//----------------------------------------------------------
+	//  @描述       模拟IIC发送寄存器数据
+	//  @参数       registerAddress     寄存器地址
+	//  @参数       data                写入的数据
+	//  @返回       0 = 成功;1 = 失败
+	//----------------------------------------------------------
+	uint8 writeData(uint8 registerAddress, uint8 data)
+	{
+		start();
+		if(sendByte(slaveAddress << 1 | 0))return 1;
+		if(sendByte(registerAddress))return 1;
+		if(sendByte(data))return 1;
+		stop();
+		return 0;
+	}
+	
+	//----------------------------------------------------------
+	//  @描述       模拟IIC连续发送寄存器数据
+	//  @参数       registerAddress     寄存器地址
+	//  @参数       len                 连续发送的次数
+	//  @参数       buffer              发送的数据地址
+	//  @返回       0 = 成功;1 = 失败
+	//----------------------------------------------------------
+	uint8 writeBuffer(uint8 registerAddress, uint8 len, uint8 *buffer)
+	{
+		uint8 temp;
+		
+		start();
+		if(sendByte(slaveAddress << 1 | 0))return 1;
+		if(sendByte(registerAddress))return 1;
+		for(temp = 0; temp < len; ++temp)
+		{
+			if(sendByte(buffer[temp]))return 1;
+		}
+		stop();
+		return 0;
+	}
+	
+	//----------------------------------------------------------
+	//  @描述       模拟IIC读取寄存器数据
+	//  @参数       registerAddress     寄存器地址
+	//  @参数       data                存储读取值的地址
+	//  @返回       0 = 成功;1 = 失败
+	//----------------------------------------------------------
+	uint8 readData(uint8 registerAddress, uint8 *data)
+	{
+		start();
+		if(sendByte(slaveAddress << 1 | 0)) return 1;
+		if(sendByte(registerAddress)) return 1;
+		start();
+		if(sendByte(slaveAddress << 1 | 1)) return 1;
+		*data = readByte(0);
+		stop();
+		return 0;
+	}
+	
+	//----------------------------------------------------------
+	//  @描述       模拟IIC连续读取寄存器数据
+	//  @参数       registerAddress     寄存器地址
+	//  @参数       len                 存储读取值的地址
+	//  @参数       buffer              储存数据的地址
+	//  @返回       0 = 成功;1 = 失败
+	//----------------------------------------------------------
+	uint8 readBuffer(uint8 registerAddress, uint8 len, uint8 *buffer)
+	{
+		start();
+		if(sendByte(slaveAddress << 1 | 0))return 1;
+		if(sendByte(registerAddress))return 1;
+		start();
+		if(sendByte(slaveAddress << 1 | 1)) return 1;
+		while(len)
+		{
+			(len == 1) ? ((*buffer) = readByte(0)) : ((*buffer) = readByte(1));
+			--len;
+			++buffer;
+		}
+		stop();
+		return 0;
+	}
+
+
+private:/*********************** 内部函数 ***********************/
+
+	//----------------------------------------------------------
+	//  @描述       模拟IIC发送起始信号
+	//----------------------------------------------------------
+	void start(void)
 	{
 		MYIIC_GPIO_SET_OUT(sdaPin);
 		
 		MYIIC_GPIO_SET_BITS(sdaPin);
-		MYIIC_GPIO_SET_BITS(sclPin);
+		MYIIC_GPIO_SET_BITS(sckPin);
 		NOP();
 		MYIIC_GPIO_RESET_BITS(sdaPin);
 		NOP();
-		MYIIC_GPIO_RESET_BITS(sclPin);
+		MYIIC_GPIO_RESET_BITS(sckPin);
 	}
 	
-//----------------------------------------------------------
-//  @描述       模拟IIC发送终止信号
-//----------------------------------------------------------
-	void IIC_Stop(void)
+	//----------------------------------------------------------
+	//  @描述       模拟IIC发送终止信号
+	//----------------------------------------------------------
+	void stop(void)
 	{
 		MYIIC_GPIO_SET_OUT(sdaPin);
 		
-		MYIIC_GPIO_RESET_BITS(sclPin);
+		MYIIC_GPIO_RESET_BITS(sckPin);
 		MYIIC_GPIO_RESET_BITS(sdaPin);
 		NOP();
-		MYIIC_GPIO_SET_BITS(sclPin);
+		MYIIC_GPIO_SET_BITS(sckPin);
 		NOP();
 		MYIIC_GPIO_SET_BITS(sdaPin);
 		NOP();
 	}
 	
-//----------------------------------------------------------
-//  @描述       模拟IIC检查从机应答信号
-//  @返回       0 = 成功;1 = 失败
-//----------------------------------------------------------
-	uint8_t IIC_ChackAsk(void)
+	//----------------------------------------------------------
+	//  @描述       模拟IIC检查从机应答信号
+	//  @返回       0 = 成功;1 = 失败
+	//----------------------------------------------------------
+	uint8 checkAsk(void)
 	{
-		uint8_t ErrTime = 0;
+		uint8 ErrTime = 0;
 		MYIIC_GPIO_SET_IN(sdaPin);
 		
 	//	MYIIC_GPIO_SET_BITS(sdaPin);
 	//	NOP();
-		MYIIC_GPIO_SET_BITS(sclPin);
+		MYIIC_GPIO_SET_BITS(sckPin);
 		NOP();
 		while(MYIIC_GPIO_READ(sdaPin))
 		{
 			ErrTime++;
 			if(ErrTime > 254)
 			{
-				IIC_Stop();
+				stop();
 				return 1;
 			}
 		}
-		MYIIC_GPIO_RESET_BITS(sclPin);
+		MYIIC_GPIO_RESET_BITS(sckPin);
 		NOP();
 		return 0;
 	}
 	
-//----------------------------------------------------------
-//  @描述       模拟IIC发送应答信号
-//  @参数       NewState        SET = 应答,RESET = 非应答
-//----------------------------------------------------------
-	void IIC_SendAsk(char NewState)
+	//----------------------------------------------------------
+	//  @描述       模拟IIC发送应答信号
+	//  @参数       NewState        SET = 应答,RESET = 非应答
+	//----------------------------------------------------------
+	void sendAsk(char NewState)
 	{
-		MYIIC_GPIO_RESET_BITS(sclPin);
+		MYIIC_GPIO_RESET_BITS(sckPin);
 		MYIIC_GPIO_SET_OUT(sdaPin);
 		
 		(NewState == 1)? MYIIC_GPIO_RESET_BITS(sdaPin): MYIIC_GPIO_SET_BITS(sdaPin);
 		NOP();
-		MYIIC_GPIO_SET_BITS(sclPin);
+		MYIIC_GPIO_SET_BITS(sckPin);
 		NOP();
-		MYIIC_GPIO_RESET_BITS(sclPin);
+		MYIIC_GPIO_RESET_BITS(sckPin);
 		NOP();
 	}
 	
-//----------------------------------------------------------
-//  @描述       模拟IIC发送一个字节
-//  @参数       data            发送的字节
-//  @返回       0 = 成功;1 = 失败
-//----------------------------------------------------------
-	uint8_t IIC_SendByte(uint8_t data)
+	//----------------------------------------------------------
+	//  @描述       模拟IIC发送一个字节
+	//  @参数       data            发送的字节
+	//  @返回       0 = 成功;1 = 失败
+	//----------------------------------------------------------
+	uint8 sendByte(uint8 data)
 	{
-		uint8_t temp;
+		uint8 temp;
 		MYIIC_GPIO_SET_OUT(sdaPin);
-		MYIIC_GPIO_RESET_BITS(sclPin);
+		MYIIC_GPIO_RESET_BITS(sckPin);
 		for(temp = 0; temp < 8; temp++)
 		{
 			(data & 0x80)? MYIIC_GPIO_SET_BITS(sdaPin): MYIIC_GPIO_RESET_BITS(sdaPin);
 			data <<= 1;
 			NOP();
-			MYIIC_GPIO_SET_BITS(sclPin);
+			MYIIC_GPIO_SET_BITS(sckPin);
 			NOP();
-			MYIIC_GPIO_RESET_BITS(sclPin);
+			MYIIC_GPIO_RESET_BITS(sckPin);
 			NOP();
 		}
-		if(IIC_ChackAsk())
+		if(checkAsk())
 			return 1;
 		return 0;
 	}
 	
-//----------------------------------------------------------
-//  @描述       模拟IIC接收一个字节
-//  @参数       NewState        1 = 应答信号,0 = 非应答信号
-//  @返回       读出来的字节
-//----------------------------------------------------------
-	uint8_t IIC_ReadByte(char NewState)
+	//----------------------------------------------------------
+	//  @描述       模拟IIC接收一个字节
+	//  @参数       NewState        1 = 应答信号,0 = 非应答信号
+	//  @返回       读出来的字节
+	//----------------------------------------------------------
+	uint8 readByte(char NewState)
 	{
-		uint8_t temp = 0,data = 0;
+		uint8 temp = 0,data = 0;
 		MYIIC_GPIO_SET_IN(sdaPin);
 		
 		for(temp = 0; temp < 8; ++temp)
 		{
-			MYIIC_GPIO_RESET_BITS(sclPin);
+			MYIIC_GPIO_RESET_BITS(sckPin);
 			NOP();
-			MYIIC_GPIO_SET_BITS(sclPin);
+			MYIIC_GPIO_SET_BITS(sckPin);
 			data <<= 1;
 			if(MYIIC_GPIO_READ(sdaPin))
 				data++;
 			NOP();
 		}
-		(NewState == 1)? IIC_SendAsk(1): IIC_SendAsk(0);
+		(NewState == 1)? sendAsk(1): sendAsk(0);
 		return data;
 	}
-};
 
+	//因为每一个IIC芯片的数据引脚、时钟引脚和从机地址是由硬件决定的,不会在编程的过程中发生改变
+	PTX_n sdaPin;
+	PTX_n sckPin;
+	uint8 slaveAddress;
+};
 
 //----------------------------------------------------------
 //  @描述       模拟IIC初始化,即初始化两个GPIO引脚
-//  @参数       sdaPin          sda数据信号引脚号
-//  @参数       sclPin          scl时钟信号引脚号
+//  @参数       sda       IIC通讯的数据引脚
+//  @参数       scl       IIC通讯的时钟引脚
 //----------------------------------------------------------
-void IIC_Init(PTX_n sdaPin, PTX_n sclPin)
+void IIC_Init(PTX_n sdaPin, PTX_n sckPin)
 {
-	gpio_init(sdaPin, GPO, 1);
-	gpio_init(sclPin, GPO, 1);
+	IIC_Controller controller(sdaPin, sckPin, 0);
+	controller.init();
 }
 
 //----------------------------------------------------------
 //  @描述       模拟IIC发送寄存器数据
-//  @参数       sdaPin          sda数据信号引脚号
-//  @参数       sclPin          scl时钟信号引脚号
-//  @参数       SlaveAddress    从机地址
-//  @参数       REG_Address     寄存器地址
-//  @参数       REG_data        写入的数据
+//  @参数       sda                 IIC通讯的数据引脚
+//  @参数       scl                 IIC通讯的时钟引脚
+//  @参数       slaveAddress        从机地址
+//  @参数       registerAddress     寄存器地址
+//  @参数       data                写入的数据
 //  @返回       0 = 成功;1 = 失败
 //----------------------------------------------------------
-uint8_t IIC_WriteRegister(PTX_n sdaPin, PTX_n sclPin, uint8_t SlaveAddress, uint8_t REG_Address, uint8_t REG_data)
+uint8 IIC_WriteData(PTX_n sdaPin, PTX_n sckPin, uint8 slaveAddress, uint8 registerAddress, uint8 data)
 {
-	Myiic_Base base(sdaPin, sclPin);
-	base.IIC_Start();
-	if(base.IIC_SendByte(SlaveAddress << 1 | 0))return 1;
-	if(base.IIC_SendByte(REG_Address))return 1;
-	if(base.IIC_SendByte(REG_data))return 1;
-	base.IIC_Stop();
-	return 0;
+	IIC_Controller controller(sdaPin, sckPin, slaveAddress);
+	return controller.writeData(registerAddress, data);
 }
 
 //----------------------------------------------------------
 //  @描述       模拟IIC连续发送寄存器数据
-//  @参数       sdaPin          sda数据信号引脚号
-//  @参数       sclPin          scl时钟信号引脚号
-//  @参数       SlaveAddress    从机地址
-//  @参数       REG_Address     寄存器地址
-//  @参数       len             连续发送的次数
-//  @参数       buf             发送的数据地址
+//  @参数       sda                 IIC通讯的数据引脚
+//  @参数       scl                 IIC通讯的时钟引脚
+//  @参数       slaveAddress        从机地址
+//  @参数       registerAddress     寄存器地址
+//  @参数       len                 连续发送的次数
+//  @参数       buffer              发送的数据地址
 //  @返回       0 = 成功;1 = 失败
 //----------------------------------------------------------
-uint8_t IIC_WriteRegisterLen(PTX_n sdaPin, PTX_n sclPin, uint8_t SlaveAddress, uint8_t REG_Address, uint8_t len, uint8_t *buf)
+uint8 IIC_WriteBuffer(PTX_n sdaPin, PTX_n sckPin, uint8 slaveAddress, uint8 registerAddress, uint8 len, uint8 *buffer)
 {
-	uint8_t temp;
-	Myiic_Base base(sdaPin, sclPin);
-	base.IIC_Start();
-	if(base.IIC_SendByte(SlaveAddress << 1 | 0))return 1;
-	if(base.IIC_SendByte(REG_Address))return 1;
-	for(temp = 0; temp < len; ++temp)
-	{
-		if(base.IIC_SendByte(buf[temp]))return 1;
-	}
-	base.IIC_Stop();
-	return 0;
+	IIC_Controller controller(sdaPin, sckPin, slaveAddress);
+	return controller.writeBuffer(registerAddress, len, buffer);
 }
 
 //----------------------------------------------------------
 //  @描述       模拟IIC读取寄存器数据
-//  @参数       sdaPin          sda数据信号引脚号
-//  @参数       sclPin          scl时钟信号引脚号
-//  @参数       SlaveAddress    从机地址
-//  @参数       REG_Address     寄存器地址
-//  @参数       data            存储读取值的地址
+//  @参数       sda                 IIC通讯的数据引脚
+//  @参数       scl                 IIC通讯的时钟引脚
+//  @参数       slaveAddress        从机地址
+//  @参数       registerAddress     寄存器地址
+//  @参数       data                存储读取值的地址
 //  @返回       0 = 成功;1 = 失败
 //----------------------------------------------------------
-uint8_t IIC_ReadRegister(PTX_n sdaPin, PTX_n sclPin, uint8_t SlaveAddress, uint8_t REG_Address, uint8_t *data)
+uint8 IIC_ReadData(PTX_n sdaPin, PTX_n sckPin, uint8 slaveAddress, uint8 registerAddress, uint8 *data)
 {
-	Myiic_Base base(sdaPin, sclPin);
-	base.IIC_Start();
-	if(base.IIC_SendByte(SlaveAddress << 1 | 0)) return 1;
-	if(base.IIC_SendByte(REG_Address)) return 1;
-	base.IIC_Start();
-	if(base.IIC_SendByte(SlaveAddress << 1 | 1)) return 1;
-	*data = base.IIC_ReadByte(0);
-	base.IIC_Stop();
-	return 0;
+	IIC_Controller controller(sdaPin, sckPin, slaveAddress);
+	return controller.readData(registerAddress, data);
 }
 
 //----------------------------------------------------------
 //  @描述       模拟IIC连续读取寄存器数据
-//  @参数       sdaPin          sda数据信号引脚号
-//  @参数       sclPin          scl时钟信号引脚号
-//  @参数       SlaveAddress    从机地址
-//  @参数       REG_Address     寄存器地址
-//  @参数       len             存储读取值的地址
-//  @参数       buf             储存数据的地址
+//  @参数       sda                 IIC通讯的数据引脚
+//  @参数       scl                 IIC通讯的时钟引脚
+//  @参数       slaveAddress        从机地址
+//  @参数       registerAddress     寄存器地址
+//  @参数       len                 存储读取值的地址
+//  @参数       buffer              储存数据的地址
 //  @返回       0 = 成功;1 = 失败
 //----------------------------------------------------------
-uint8_t IIC_ReadRegisterLen(PTX_n sdaPin, PTX_n sclPin, uint8_t SlaveAddress, uint8_t REG_Address, uint8_t len, uint8_t *buf)
+uint8 IIC_ReadBuffer(PTX_n sdaPin, PTX_n sckPin, uint8 slaveAddress, uint8 registerAddress, uint8 len, uint8 *buffer)
 {
-	Myiic_Base base(sdaPin, sclPin);
-	base.IIC_Start();
-	if(base.IIC_SendByte(SlaveAddress << 1 | 0))return 1;
-	if(base.IIC_SendByte(REG_Address))return 1;
-	base.IIC_Start();
-	if(base.IIC_SendByte(SlaveAddress << 1 | 1)) return 1;
-	while(len)
-	{
-		(len == 1) ? ((*buf) = base.IIC_ReadByte(0)) : ((*buf) = base.IIC_ReadByte(1));
-		--len;
-		++buf;
-	}
-	base.IIC_Stop();
-	return 0;
+	IIC_Controller controller(sdaPin, sckPin, slaveAddress);
+	return controller.readBuffer(registerAddress, len, buffer);
 }
-

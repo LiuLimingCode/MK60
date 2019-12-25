@@ -19,7 +19,7 @@ extern "C" {
 #define NOP()   for(int tempdely = 0; tempdely < 2; ++tempdely);//增加IIC通讯的延时时间，提高稳定性
 
 //为方便移植,可以直接更改宏定义实现相同功能
-#define MYIIC_GPIO_SET_BITS(x)    gpio_set(x ,1)       //将引脚输出高电平
+#define MYIIC_GPIO_SET_BITS(x)    gpio_set(x, 1)       //将引脚输出高电平
 #define MYIIC_GPIO_RESET_BITS(x)  gpio_set(x, 0)       //将引脚输出低电平
 #define MYIIC_GPIO_SET_OUT(x)     gpio_init(x, GPO, 0) //将引脚设置为输出模式,默认输出低电平
 #define MYIIC_GPIO_SET_IN(x)      gpio_init(x, GPI, 1) //将引脚设置为输入模式,默认上拉
