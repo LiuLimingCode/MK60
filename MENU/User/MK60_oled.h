@@ -16,6 +16,7 @@
 #define OLED_PAGE_MAX          (OLED_Y_MAX/8) //OLED将8行像素一起控制
 #define OLED_WHITE             (uint8_t)0XFF  //白色
 #define OLED_BLACK             (uint8_t)0X00  //黑色
+#define OLED_DISPLAY_DIR	   0              //OLED显示方向
 
 //是否选用硬件SPI：0为使用模拟SPI,1为使用硬件SPI,硬件软件SPI描述见MK_myspi.h
 #define OLED_SPI_HARDWARE      1

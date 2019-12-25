@@ -52,8 +52,15 @@ void OLED_Init (void)
 	OLED_WriteCmd(0x40);//--set start line address	Set Mapping RAM Display Start Line (0x00~0x3F)
 	OLED_WriteCmd(0x81);//--set contrast control register
 	OLED_WriteCmd(0xcf); // Set SEG Output Current Brightness
-	OLED_WriteCmd(0xa1);//--Set SEG/Column Mapping		 //
-	OLED_WriteCmd(0xc8);//Set COM/Row Scan Direction	//
+
+#if (0 == OLED_DISPLAY_DIR)
+	OLED_WriteCmd(0xa1);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
+	OLED_WriteCmd(0xc8);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
+#else
+    OLED_WriteCmd(0xa0);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
+	OLED_WriteCmd(0xc0);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
+#endif
+		
 	OLED_WriteCmd(0xa6);//--set normal display
 	OLED_WriteCmd(0xa8);//--set multiplex ratio(1 to 64)
 	OLED_WriteCmd(0x3f);//--1/64 duty
