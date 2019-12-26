@@ -5,8 +5,8 @@
  * @完成时间   2019年12月
  */
  
-#ifndef _MK60_FXAS2100_H
-#define _MK60_FXAS2100_H
+#ifndef __MK60_FXAS2100_H
+#define __MK60_FXAS2100_H
 
 #include "headfile.h"
 

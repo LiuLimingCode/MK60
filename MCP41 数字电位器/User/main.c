@@ -2,26 +2,26 @@
 
 //以下为数字电位器操作界面参考程序
 
-#define KU							B1
-#define KD							C5
-#define KC							B17
-#define KL							B19
-#define KR							B9 	
-#define SW4							A5
-#define SW3							A12
-#define SW2							A13 
-#define AD_CH_L_1				ADC1_SE7a
-#define AD_CH_L__				ADC1_DP0
-#define AD_CH_M_1				ADC0_DP1
-#define AD_CH_R__				ADC0_DP0
-#define AD_CH_R_1				ADC1_DP1
+#define KU              B1
+#define KD              C5
+#define KC              B17
+#define KL              B19
+#define KR              B9 	
+#define SW4             A5
+#define SW3             A12
+#define SW2             A13 
+#define AD_CH_L_1       ADC1_SE7a
+#define AD_CH_L__       ADC1_DP0
+#define AD_CH_M_1       ADC0_DP1
+#define AD_CH_R__       ADC0_DP0
+#define AD_CH_R_1       ADC1_DP1
 
 void FLASH_InitMCP41(void);
 void Normalized_MCP41(void);
 
-#define	FLASH_SAVE_MCP41				(FLASH_SECTOR_NUM - 23)
-#define FLASH_SAVE_ADC_NORMAL                           (FLASH_SECTOR_NUM - 25)
-#define	OLED_SHOW(x)					(int16)(25.5 * (x - 1))
+#define	FLASH_SAVE_MCP41        (FLASH_SECTOR_NUM - 23)
+#define FLASH_SAVE_ADC_NORMAL   (FLASH_SECTOR_NUM - 25)
+#define	OLED_SHOW(x)            (int16)(25.5 * (x - 1))
 
 typedef enum
 {
@@ -51,11 +51,11 @@ int main()
   gpio_init(KC, GPI, 1);
   
   
-  gpio_init(CS0, GPO, 1);
-  gpio_init(CS1, GPO, 1);
-  gpio_init(CS2, GPO, 1);
-  gpio_init(CS3, GPO, 1);
-  gpio_init(CS4, GPO, 1);
+  gpio_init(MCP41_CS0, GPO, 1);
+  gpio_init(MCP41_CS1, GPO, 1);
+  gpio_init(MCP41_CS2, GPO, 1);
+  gpio_init(MCP41_CS3, GPO, 1);
+  gpio_init(MCP41_CS4, GPO, 1);
   
   FLASH_InitMCP41();
   
@@ -135,10 +135,10 @@ void Normalized_MCP41(void)
 		for(int temp = 0; temp < 3; ++temp)//增加电感读数显示的频率
 		{
 			OLED_P6x8Int(OLED_SHOW(1), 3, adc_once(AD_CH_L_1, ADC_8bit), 3);
-                        OLED_P6x8Int(OLED_SHOW(2), 3, adc_once(AD_CH_L__, ADC_8bit), 3);
-                        OLED_P6x8Int(OLED_SHOW(3), 3, adc_once(AD_CH_M_1, ADC_8bit), 3);
-                        OLED_P6x8Int(OLED_SHOW(4), 3, adc_once(AD_CH_R__, ADC_8bit), 3);
-                        OLED_P6x8Int(OLED_SHOW(5), 3, adc_once(AD_CH_R_1, ADC_8bit), 3);//显示电感读数
+			OLED_P6x8Int(OLED_SHOW(2), 3, adc_once(AD_CH_L__, ADC_8bit), 3);
+			OLED_P6x8Int(OLED_SHOW(3), 3, adc_once(AD_CH_M_1, ADC_8bit), 3);
+			OLED_P6x8Int(OLED_SHOW(4), 3, adc_once(AD_CH_R__, ADC_8bit), 3);
+			OLED_P6x8Int(OLED_SHOW(5), 3, adc_once(AD_CH_R_1, ADC_8bit), 3);//显示电感读数
 			systick_delay_ms(50);
 		}
 	}
@@ -162,6 +162,6 @@ void FLASH_InitMCP41(void)
 	for(uint8 temp= 0; temp < ADC_NUM; temp++)
 	{
 		ADC_MinData[temp] = flash_read(FLASH_SAVE_ADC_NORMAL, 32 * temp, int16);
-                OLED_P6x8Int(OLED_SHOW(temp + 1) + 6, 2, ADC_MinData[temp] ,3);
+		OLED_P6x8Int(OLED_SHOW(temp + 1) + 6, 2, ADC_MinData[temp] ,3);
 	}
 }

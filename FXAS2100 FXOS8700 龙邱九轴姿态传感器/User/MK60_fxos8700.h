@@ -8,8 +8,8 @@
  * @完成时间   2019年12月
  */
  
-#ifndef _MK60_FXOS8700_H
-#define _MK60_FXOS8700_H
+#ifndef __MK60_FXOS8700_H
+#define __MK60_FXOS8700_H
 
 #include "headfile.h"
 

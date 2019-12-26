@@ -9,8 +9,8 @@
 #include "MK60_myspi.h"
 #include "MK60_oled.h"
 
-static uint8 CSX[8] = {CS0, CS1, CS2, CS3, CS4, CS5, CS6, CS7};
-static uint8 ADC_CX[8] = {P0, P1, P2, P3, P4, P5, P6, P7};
+static uint8 CSX[8] = {MCP41_CS0, MCP41_CS1, MCP41_CS2, MCP41_CS3, MCP41_CS4, MCP41_CS5, MCP41_CS6, MCP41_CS7};
+static uint8 ADC_CX[8] = {MCP41_P0, MCP41_P1, MCP41_P2, MCP41_P3, MCP41_P4, MCP41_P5, MCP41_P6, MCP41_P7};
 
 //--------------------------------------------------------------
 //  @描述       MCP41数字电位器引脚初始化
