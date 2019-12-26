@@ -1,11 +1,11 @@
 /*!
- * @æ–‡ä»¶       fxos8700.c
- * @æè¿°       fxos8700å‡½æ•°å®žçŽ°,fxos8700æ˜¯ä¸€æ¬¾æ€§èƒ½ä¼˜è¶Šçš„ä¸‰è½´åŠ é€Ÿåº¦è®¡ä¼ æ„Ÿå™¨å’Œä¸‰è½´åœ°ç£ä¼ æ„Ÿå™¨,
- *             å…¶åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨çš„æ•°æ®å™ªå£°è¿œè¿œä½ŽäºŽMPU6050çš„åŠ é€Ÿåº¦ä¼ æ„Ÿå™¨.åœ°ç£ä¼ æ„Ÿå™¨çš„çµæ•åº¦å’Œå·¥
- *             ä½œé¢‘çŽ‡è¿œè¿œè¶…è¿‡MPU9050çš„åœ°ç£ä¼ æ„Ÿå™¨,å¯ä»¥ç”¨æ¥æ£€æµ‹èµ·è·‘çº¿çš„ç£é“,ä½†èŠ¯ç‰‡æœ¬èº«æ²¡æœ‰DMP
- *             å•å…ƒ,æ‰€ä»¥å¦‚æžœè¦è®¡ç®—å§¿æ€è§’çš„è¯,éœ€è¦å¦å¤–å¢žåŠ å¡å°”æ›¼æ»¤æ³¢ç®—æ³•.
- * @ä½œè€…       åˆ˜åŠ›é“­
- * @å®Œæˆæ—¶é—´   2019å¹´12æœˆ
+ * @ÎÄ¼þ       fxos8700.c
+ * @ÃèÊö       fxos8700º¯ÊýÊµÏÖ,fxos8700ÊÇÒ»¿îÐÔÄÜÓÅÔ½µÄÈýÖá¼ÓËÙ¶È¼Æ´«¸ÐÆ÷ºÍÈýÖáµØ´Å´«¸ÐÆ÷,
+ *             Æä¼ÓËÙ¶È´«¸ÐÆ÷µÄÊý¾ÝÔëÉùÔ¶Ô¶µÍÓÚMPU6050µÄ¼ÓËÙ¶È´«¸ÐÆ÷.µØ´Å´«¸ÐÆ÷µÄÁéÃô¶ÈºÍ¹¤
+ *             ×÷ÆµÂÊÔ¶Ô¶³¬¹ýMPU9050µÄµØ´Å´«¸ÐÆ÷,¿ÉÒÔÓÃÀ´¼ì²âÆðÅÜÏßµÄ´ÅÌú,µ«Ð¾Æ¬±¾ÉíÃ»ÓÐDMP
+ *             µ¥Ôª,ËùÒÔÈç¹ûÒª¼ÆËã×ËÌ¬½ÇµÄ»°,ÐèÒªÁíÍâÔö¼Ó¿¨¶ûÂüÂË²¨Ëã·¨.
+ * @×÷Õß       ÁõÁ¦Ãú
+ * @Íê³ÉÊ±¼ä   2019Äê12ÔÂ
  */
  
 #ifndef _MK60_FXOS8700_H
@@ -21,7 +21,7 @@
 #define ERR_FXOS8700INIT_FAIL   (uint8_t)3
 #define ERR_DMPINIT_FAIL        (uint8_t)4
 
-/********************** å¯„å­˜å™¨åœ°å€ **********************/
+/********************** ¼Ä´æÆ÷µØÖ· **********************/
 
 #define FXOS8700_STATUS               0x00		
 #define FXOS8700_OUT_X_MSB            0x01
@@ -66,15 +66,15 @@
 #define FXOS8700_M_CTRL_REG3          0x5D
 
 /********************** XYZ_DATA_CFG **********************/
-typedef enum            //åŠ é€Ÿåº¦è®¡è¾“å‡ºé‡ç¨‹
+typedef enum            //¼ÓËÙ¶È¼ÆÊä³öÁ¿³Ì
 { 
-	FXOS8700_FS_2G = 0x00,    //int16æ»¡é‡ç¨‹ä¸ºÂ±2G
+	FXOS8700_FS_2G = 0x00,    //int16ÂúÁ¿³ÌÎª¡À2G
 	FXOS8700_FS_4G = 0x01,
 	FXOS8700_FS_8G = 0x02,
 }FXOS8700_FS_TypeDef;
 
 /********************** CTRL_REG1 **********************/
-typedef enum            //è¾“å‡ºé€ŸçŽ‡è®¾ç½®
+typedef enum            //Êä³öËÙÂÊÉèÖÃ
 { 
 	FXOS8700_DR_800HZ = 0x00 << 3,
 	FXOS8700_DR_400HZ = 0x01 << 3,
@@ -135,33 +135,33 @@ typedef enum            //è¾“å‡ºé€ŸçŽ‡è®¾ç½®
 #define FXOS8700_M_THS_XHP      0x01
 
 /********************** M_CTRL_REG1 **********************/
-typedef enum            //åŠ é€Ÿåº¦è®¡è¾“å‡ºé€ŸçŽ‡è®¾ç½®
+typedef enum            //¼ÓËÙ¶È¼ÆÊä³öËÙÂÊÉèÖÃ
 { 
 	FXOS8700_M_HMS_ONLY_ACCEL = 0x00,
 	FXOS8700_M_HMS_ONLY_MAGNET = 0x01,
 	FXOS8700_M_HMS_HYBRID_MODE = 0x03,
 }FXOS8700_M_HMS_TypeDef;
 
-/********************** æ•°æ®ç±»åž‹ **********************/
+/********************** Êý¾ÝÀàÐÍ **********************/
 typedef enum
 { 
-	FXOS8700_DATA_X_ACCEL = 0,    //Xè½´åŠ é€Ÿåº¦
-	FXOS8700_DATA_Y_ACCEL = 1,    //Yè½´åŠ é€Ÿåº¦
-	FXOS8700_DATA_Z_ACCEL = 2,    //Zè½´åŠ é€Ÿåº¦
-	FXOS8700_DATA_X_MAGNET = 3,   //Xè½´åŠ é€Ÿåº¦
-	FXOS8700_DATA_Y_MAGNET = 4,   //Yè½´åŠ é€Ÿåº¦
-	FXOS8700_DATA_Z_MAGNET = 5,   //Zè½´åŠ é€Ÿåº¦
+	FXOS8700_DATA_X_ACCEL = 0,    //XÖá¼ÓËÙ¶È
+	FXOS8700_DATA_Y_ACCEL = 1,    //YÖá¼ÓËÙ¶È
+	FXOS8700_DATA_Z_ACCEL = 2,    //ZÖá¼ÓËÙ¶È
+	FXOS8700_DATA_X_MAGNET = 3,   //XÖá¼ÓËÙ¶È
+	FXOS8700_DATA_Y_MAGNET = 4,   //YÖá¼ÓËÙ¶È
+	FXOS8700_DATA_Z_MAGNET = 5,   //ZÖá¼ÓËÙ¶È
 }FXOS8700_DATA_TypeDef;
 
-/***************** é‡è¦å®å®šä¹‰ *****************/
-#define FXOS8700_FS     FXOS8700_FS_2G    //è®¾ç½®åŠ é€Ÿåº¦è®¡çš„é‡ç¨‹,è§FXOS8700_FS_TypeDef
-#define FXOS8700_DR     FXOS8700_DR_800HZ //è®¾ç½®åŠ é€Ÿçš„è®¡çš„æ•°æ®è¾“å‡ºé¢‘çŽ‡,è§FXOS8700_DR_TypeDef
+/***************** ÖØÒªºê¶¨Òå *****************/
+#define FXOS8700_FS     FXOS8700_FS_2G    //ÉèÖÃ¼ÓËÙ¶È¼ÆµÄÁ¿³Ì,¼ûFXOS8700_FS_TypeDef
+#define FXOS8700_DR     FXOS8700_DR_800HZ //ÉèÖÃ¼ÓËÙµÄ¼ÆµÄÊý¾ÝÊä³öÆµÂÊ,¼ûFXOS8700_DR_TypeDef
 
-/****************** å¼•è„šé€‰æ‹© ******************/
+/****************** Òý½ÅÑ¡Ôñ ******************/
 #define FXOS8700_SDA_Pin       B3
 #define FXOS8700_SCL_Pin       B2
 
-/****************** å¯è°ƒç”¨å‡½æ•° ******************/
+/****************** ¿Éµ÷ÓÃº¯Êý ******************/
 uint8_t FXOS8700_Init(void);
 uint8_t FXOS8700_ReadData(FXOS8700_DATA_TypeDef Data_Type, int16_t *data);
 
