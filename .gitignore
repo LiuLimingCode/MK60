@@ -11,3 +11,5 @@
 *.dep
 *.DELL
 JLinkLog.txt
+*.dbgconf
+EventRecorderStub.scvd
