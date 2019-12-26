@@ -28,6 +28,9 @@ void SPI_InitHardware(SPIn_e spi, uint32 baud)
 //----------------------------------------------------------------------
 void SPI_SendDataHardware(SPIn_e spi, uint8 data)
 {
+	//spi_mosi(spi, NOT_PCS, &data, NULL, 1); //库函数版本,若寄存器版本程序出现问题,则调用该函数比较稳妥
+	
+	//寄存器版本的发送程序,发送速度更快,但是不一定能用
 	while((SPIN[spi]->SR & SPI_SR_TCF_MASK) == 1){} //等待传输完成
 	SPIN[spi]->SR = SPI_SR_TCF_MASK;
 	SPIN[spi]->PUSHR = (0
@@ -61,7 +64,7 @@ void SPI_SendDataSimulated(PTX_n sdaPin, PTX_n sclPin, uint8 data)
 #define MYSPI_GPIO_RESET_BITS(x)  gpio_set(x, 0)
 	uint8_t temp = 8;
 	
-	MYSPI_GPIO_SET_BITS(sclPin);
+	MYSPI_GPIO_RESET_BITS(sclPin);
 	while (temp--)
 	{
 		if (data & 0x80) MYSPI_GPIO_SET_BITS(sdaPin);
