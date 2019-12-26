@@ -52,14 +52,14 @@ static void __writeDataToStorage(int32* value, int sector);
 //  MENU_SHOW_ROW计算出该变量位置在屏幕上实际的坐标点.
 //------------------------------------------------------------------------------------
 
-#define MENU_VARIABLE_PERLINE						2 //每行的变量数
-#define MENU_GAP_CURSOR_VARIABLE				8 //变量显示和光标显示之间的距离
-#define MENU_SHOW_CURSOR(x)							(OLED_X_MAX * ((x) % MENU_VARIABLE_PERLINE) / MENU_VARIABLE_PERLINE) //光标显示的横坐标位置
-#define MENU_SHOW_VARIABLE(x)		        (OLED_X_MAX * ((x) % MENU_VARIABLE_PERLINE) / MENU_VARIABLE_PERLINE + MENU_GAP_CURSOR_VARIABLE) //变量显示的横坐标位置
-#define MENU_SHOW_ROW(x)							  ((x) / MENU_VARIABLE_PERLINE + 1) //菜单显示的纵坐标
-#define MENU_LINE_SAVE_BUTTON						MENU_LINE_MAX - 1 //"SAVE"按键所在的行数
-#define MENU_LINE_BACK_BUTTON						MENU_LINE_MAX //"BACK"按键所在的行数
-#define MENU_LINE_MAX										7
+#define MENU_VARIABLE_PERLINE           2 //每行的变量数
+#define MENU_GAP_CURSOR_VARIABLE        8 //变量显示和光标显示之间的距离
+#define MENU_SHOW_CURSOR(x)             (OLED_X_MAX * ((x) % MENU_VARIABLE_PERLINE) / MENU_VARIABLE_PERLINE) //光标显示的横坐标位置
+#define MENU_SHOW_VARIABLE(x)           (OLED_X_MAX * ((x) % MENU_VARIABLE_PERLINE) / MENU_VARIABLE_PERLINE + MENU_GAP_CURSOR_VARIABLE) //变量显示的横坐标位置
+#define MENU_SHOW_ROW(x)                ((x) / MENU_VARIABLE_PERLINE + 1) //菜单显示的纵坐标
+#define MENU_LINE_SAVE_BUTTON           MENU_LINE_MAX - 1 //"SAVE"按键所在的行数
+#define MENU_LINE_BACK_BUTTON           MENU_LINE_MAX //"BACK"按键所在的行数
+#define MENU_LINE_MAX                   7
 
 //-------------------------------------------------------------------------
 //  *依赖外部的显示器的函数
@@ -190,11 +190,11 @@ static void __showUintPage(const Menu_Unit* unit, int16* value, uint8 isUpdateAl
 		{
 			if(value[temp] >= 0)
 			{
-				OLED_P6x8Flo(OLED_X_MAX / 2, temp + 1, (float)value[temp] / 100.0 + 0.000001, -2);
+				OLED_P6x8Flo(OLED_X_MAX / 2, temp + 1, (double)value[temp] / 100.0 + 0.000001, -2);
 			}
 			else
 			{
-				OLED_P6x8Flo(OLED_X_MAX / 2, temp + 1, (float)value[temp] / 100.0 - 0.000001, -2);
+				OLED_P6x8Flo(OLED_X_MAX / 2, temp + 1, (double)value[temp] / 100.0 - 0.000001, -2);
 			}
 		}
 	}
@@ -223,7 +223,9 @@ static void __changePages(void)
 //-------------------------------------------------------------------------
 static void __setBuzzer(uint8 data)
 {
+#if ENABLE_BUZZER == 1 //如果不开启蜂鸣器,那么把这个函数设置为空函数
 	gpio_set(MENU_BUZZER, data);
+#endif
 }
 
 //-------------------------------------------------------------------------
@@ -304,6 +306,7 @@ static void __readDataFromStorage(int32* value, int sector)
 
 /**************** 菜单的内部算法函数,不依赖外部资源,若不更改算法，无需更改 ****************/
 
+static int menuAbs(int temp) { return temp > 0 ? temp : -temp; }
 static uint8 buttonGet(void);
 static void compressVariable(int16* srcVariable, int32* desVariable);
 static void decompressVariable(int32* srcVariable, int16* desVariable);
@@ -361,7 +364,7 @@ static void compressVariable(int16* srcVariable, int32* desVariable)
 	
 	for(int16 temp = 0; temp < VARIABLE_STORE_NUM; ++temp) 
 	{
-		int16 compressedValue = abs(srcVariable[temp]) & valueMask; //取出数据位 
+		int16 compressedValue = menuAbs(srcVariable[temp]) & valueMask; //取出数据位 
 		if(srcVariable[temp] < 0)  compressedValue |= signMask; //取出符号位 
 		
 		if(offset + VARIABLE_STORE_BIT <= FLASH_STORE_BIT) //如果没有溢出 
@@ -456,15 +459,15 @@ static int16 readSingleVariableFromAddress(void* addr, VariableTypeDef type)
 	else if(type == VariableType_Float)
 	{
 		float temp = *((float*)addr);
-		if(temp >= 0) temp += 0.000001;
-		else temp -= 0.000001;
+		if(temp >= 0) temp += 0.000001f;
+		else temp -= 0.000001f;
 		value = (int16)(temp * 100);
 	}
 	else if(type == VariableType_Double)
 	{
 		float temp = *((double*)addr);
-		if(temp >= 0) temp += 0.000001;
-		else temp -= 0.000001;
+		if(temp >= 0) temp += 0.000001f;
+		else temp -= 0.000001f;
 		value = (int16)(temp * 100);
 	}
 	
@@ -505,7 +508,7 @@ static void writeSingleVariableToAddress(void* addr, VariableTypeDef type, int16
 	else if(type == VariableType_Uint32)
 		*((uint32*)addr) = value;
 	else if(type == VariableType_Float)
-		*((float*)addr) = (float)value / 100.0;
+		*((float*)addr) = (float)value / 100.0f;
 	else if(type == VariableType_Double)
 		*((double*)addr) = (double)value / 100.0;
 }
@@ -777,7 +780,6 @@ static uint8 unitPageHandle(uint8 buttonFlag)
 					&& unitPageCursor / MENU_VARIABLE_PERLINE < (MENU_LINE_BACK_BUTTON > MENU_LINE_SAVE_BUTTON ? MENU_LINE_SAVE_BUTTON : MENU_LINE_BACK_BUTTON) - 1)
 					unitPageCursor += MENU_VARIABLE_PERLINE;
 			}
-			
 			if(unitPageCursor < 0) unitPageCursor += MENU_LINE_MAX * MENU_VARIABLE_PERLINE;
 			if(unitPageCursor >= MENU_LINE_MAX * MENU_VARIABLE_PERLINE) unitPageCursor -= MENU_LINE_MAX * MENU_VARIABLE_PERLINE;
 		}
@@ -879,9 +881,7 @@ uint8 Menu_Work(void)
 	//pageHandle为函数指针,它会指向warnPageHandle,homePageHandle,unitPageHandle,指向不同的函数,会显示不同的界面
 	returnFlag = pageHandle(buttonFlag);
 
-#if ENABLE_BUZZER
 	if(buttonFlag != ButtonFlag_Void && !returnFlag) __setBuzzer(1);
 	else __setBuzzer(0);
-#endif
 	return returnFlag;
 }

@@ -22,7 +22,7 @@ int main(void)
 	gpio_init(KL, GPI, 1);
 	gpio_init(KD, GPI, 1);
 	gpio_init(KU, GPI, 1);
-	
+	FLASH_Init();
 	Menu menu = {0};
 	
 	//≤Àµ•…Ë÷√
