@@ -13,19 +13,19 @@
 #include "MK60_oled.h"
 
 /***************** 主要宏定义 *****************/
-#define ENABLE_WARNPAGE         1           //这个宏 写0关闭警告界面 写1开启
-#define ENABLE_BUZZER           0           //这个宏 写0关闭蜂鸣器 写1开启蜂鸣器
-#define MENU_UNITS_MAX          13          //菜单单元的最大个数
-#define UNIT_VARIABLES_MAX      4           //每个菜单单元中能控制的变量的最大个数
-#define VARIABLE_STORE_NUM      (FLASH_SECTOR_SIZE/VARIABLE_STORE_BIT)  //菜单最大可以存储的变量数
+#define MENU_ENABLE_WARNPAGE    1           //这个宏 写0关闭警告界面 写1开启
+#define MENU_ENABLE_BUZZER      0           //这个宏 写0关闭蜂鸣器 写1开启蜂鸣器
+#define MENU_UNITS_NUM          13          //菜单单元的最大个数
+#define MENU_UNIT_VARIABLES_NUM 4           //每个菜单单元中能控制的变量的最大个数
+#define MENU_VARIABLE_BIT       15          //每个变量在存储器中存储的位数(可修改)
+#define MENU_VARIABLES_NUM      (MENU_STORAGE_SIZE/MENU_VARIABLE_BIT) //菜单最大可以存储的变量数
 
 /***************** 次要宏定义 *****************/
-#define FLASH_SAVE_PRO_MENU     (FLASH_SECTOR_NUM - 100)                 //菜单数据在FLASH中存储的位置
-#define FLASH_SAVE_RAW_MENU     (FLASH_SECTOR_NUM - 150)                 //菜单数据在FLASH中存储的位置
-#define FLASH_SECTOR_SIZE       SECTOR_SIZE                              //FLASH的存储总字节数
-#define VARIABLE_STORE_BIT      15                                       //每个变量在FLASH中存储的位数
-#define FLASH_STORE_BIT         32                                       //菜单的变量压缩后在FLASH存储所占的位数
-#define FLASH_STORE_NUM         (FLASH_SECTOR_SIZE/FLASH_STORE_BIT)      //菜单的变量压缩后在FLASH中存储的变量数
+#define MENU_STORAGE_PRODATA    (FLASH_SECTOR_NUM - 10)                  //菜单保存数据在存储器中存储的位置(可修改)
+#define MENU_STORAGE_RAWDATA    (FLASH_SECTOR_NUM - 11)                  //菜单原始数据在存储器中存储的位置(可修改)
+#define MENU_STORAGE_SIZE       (SECTOR_SIZE)                            //存储器的存储总位数(可修改)
+#define MENU_STORE_BIT          32                                       //菜单的变量压缩后在存储器存储所占的位数
+#define MENU_STORE_NUM          (MENU_STORAGE_SIZE/MENU_STORE_BIT)       //菜单的变量压缩后在存储器中存储的数量
 
 /****************** 引脚选择 ******************/
 #define MENU_BUTTON_UP          B16         //上按键
@@ -33,17 +33,18 @@
 #define MENU_BUTTON_LEFT        B0          //左按键
 #define MENU_BUTTON_RIGHT       B9          //右按键
 #define MENU_BUTTON_CONFIRM     B1          //确认按键
-#if ENABLE_BUZZER
-#define MENU_BUZZER             D0          //蜂鸣器,若ENABLE_BUZZER为0,可以不设置
+#if MENU_ENABLE_BUZZER
+#define MENU_BUZZER             D0          //蜂鸣器,若MENU_ENABLE_BUZZER为0,可以不设置
 #endif
 
 //------------------------------------------------------------------------------------
 //                              * 菜单保存变量值的问题 *                              
 //  菜单使用外部存储器保存数据,所以当用户改变变量值并保存后,该修改的数据在单片机重启后依然保
-//  持修改的值.但是如果用户通过编程改变了菜单中每一个变量的值或者增加了/删除了菜单中的某变量
-//  菜单会察觉到这一修改并且做出反应,该反应根据ENABLE_WARNPAGE不同而不同,若为1,则菜单会跳出
-//  警告界面询问用户,根据用户的不同选择使用新的变量值或者使用保存在FLASH中的变量值; 若为0,则
-//  菜单默认直接用新的变量值覆盖原值并且覆盖存储器,不再询问.
+//  持修改的值.但是如果用户通过编程改变了菜单中某几个变量的值或者增加/删除菜单中的某几个变量
+//  菜单会察觉到这一修改并且做出反应,该反应根据MENU_ENABLE_WARNPAGE不同而不同,若为1,则菜单
+//  会跳出警告界面询问用户,根据用户的不同选择使用新的变量值或者使用保存在FLASH中的变量值; 若
+//  为0,则菜单默认直接用新的变量值覆盖原值并且覆盖存储器,不再询问.更多详细信息请见menu.c中的
+//  * 菜单的储存原理 *
 //------------------------------------------------------------------------------------
 
 typedef enum
@@ -62,13 +63,13 @@ typedef enum
 
 typedef struct
 {
-	const char*       UintTitle;                        //显示的名字
-	void*             VariableAddr[UNIT_VARIABLES_MAX]; //变量数据地址
-	VariableTypeDef   VariableType[UNIT_VARIABLES_MAX]; //变量数据类型
-	const char*       VariableName[UNIT_VARIABLES_MAX]; //变量显示名字
+	const char*       UintTitle;                             //显示的名字
+	void*             VariableAddr[MENU_UNIT_VARIABLES_NUM]; //变量数据地址
+	VariableTypeDef   VariableType[MENU_UNIT_VARIABLES_NUM]; //变量数据类型
+	const char*       VariableName[MENU_UNIT_VARIABLES_NUM]; //变量显示名字
 }Menu_Unit;
 
-typedef Menu_Unit Menu[MENU_UNITS_MAX]; //用户用Menu定义自己的菜单结构体,语法: Menu myMenu; //等价于Menu_Unit[MENU_UNITS_MAX] myMenu;
+typedef Menu_Unit Menu[MENU_UNITS_NUM]; //用户用Menu定义自己的菜单结构体,语法: Menu myMenu; //等价于Menu_Unit[MENU_UNIT_VARIABLES_NUM] myMenu;
 
 void Menu_Init(Menu menu); //在调用该函数前,请确保外部资源(GPIO,外部存储器,外部显示器)的初始化
 uint8 Menu_Work(void); //建议每隔200ms执行一次该函数,如:while(!Menu_Work()) systick_delay_ms(200);

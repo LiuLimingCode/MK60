@@ -125,7 +125,7 @@ static void __showHomePage(const Menu_Unit* menu, uint8 isUpdateAll, int8 cursor
 		OLED_P6x8Str((OLED_X_MAX - 1 - 6 * (sizeof("Menu") - 1)) / 2, 0, "Menu");//显示界面
 		OLED_P6x8Str(MENU_SHOW_VARIABLE(0), MENU_SHOW_ROW(0), "CloseMenu");
 		
-		for(temp = 0; temp < MENU_UNITS_MAX; ++temp)
+		for(temp = 0; temp < MENU_UNITS_NUM; ++temp)
 		{
 			if(menu[temp].UintTitle != 0)
 			{
@@ -173,7 +173,7 @@ static void __showUintPage(const Menu_Unit* unit, int16* value, uint8 isUpdateAl
 		OLED_P6x8Str(MENU_SHOW_VARIABLE(0), MENU_LINE_BACK_BUTTON, "BACK");
 	}
 	
-	for(int temp = 0; temp < UNIT_VARIABLES_MAX; ++temp)
+	for(int temp = 0; temp < MENU_UNIT_VARIABLES_NUM; ++temp)
 	{
 		if(unit->VariableType[temp] == VariableType_Void) continue;
 		OLED_P6x8Str(MENU_SHOW_VARIABLE(0), temp + 1, (char*)unit->VariableName[temp]);
@@ -223,7 +223,7 @@ static void __changePages(void)
 //-------------------------------------------------------------------------
 static void __setBuzzer(uint8 data)
 {
-#if ENABLE_BUZZER == 1 //如果不开启蜂鸣器,那么把这个函数设置为空函数
+#if MENU_ENABLE_BUZZER == 1 //如果不开启蜂鸣器,那么把这个函数设置为空函数
 	gpio_set(MENU_BUZZER, data);
 #endif
 }
@@ -253,54 +253,59 @@ static int8 __buttonGet(void)
 
 //-------------------------------------------------------------------------------
 //                               * 菜单的储存原理 *                               
+//  了解一下：
 //  虽然菜单的可以控制所有不同类型的变量,事实上,在菜单修改数据,保存数据,读取数据的过程
 //  中,都是把变量转换为int16(即short int)来操作的.因为在菜单调试的过程中,整形变的量调
-//  整范围为0~9999或-999~999,浮点数的调整范围为-99.99~99.99;如果把浮点数乘100后变为
-//  整形变量,那么所有变量的最大调整范围为-9999~9999该调整范围可以用一个15位的二级制存
-//  储.在存储时,菜单将int16的变量取出有用的15位,再整合到int32变量中用于保存.这些内容
-//  只需了解一下,如果要修改菜单的存储器,要做的只是如何把这32位的变量存储到存储器中.
+//  整范围为0~9999或-999~999,浮点数的调整范围为-99.99~99.99;我们把浮点数乘100后变为
+//  整形变量.那么所有变量的最大调整范围为-9999~9999该调整范围可以用一个15位的二级制存
+//  储.在存储时,菜单将int16的变量取出有用的15位,再整合到int32变量中用于保存.
 //
-//  菜单存储的数据分为两种,需要分别储存在不同的地方,且都需要占用FLASH_SECTOR_SIZE空间.
-//  1.一种是菜单在初始化的时候,会将菜单中所有的变量值全部整合并且用compressVariable压
-//  缩随后存到存储器中,这些数据为"Raw数据",意思是原数据.
-//  2.另一种数据是在菜单在工作的时候,使用菜单的用户利菜单修改了变量的值并SAVE,菜单会把
-//  这些变量值同样压缩保存到存储器中,这些数据为"Pro数据",意思是处理后的数据.
-//  3.在__writeDataToStorage函数和__readDataFromStorage函数都有sector参数,根据该参数
+//  了解一下：
+//  菜单需要存储两种数据,分别储存在不同的地方,且都需要占用MENU_STORAGE_SIZE空间.
+//  1.一种是菜单在初始化的时候,会将所有的变量值全部整合并且压缩随后存到存储器中,这些数
+//  据为"Raw数据",意思是原数据.每一次系统重新启动后,菜单会把该保存的数据和当前程序中菜
+//  单结构体的数据做对比,由此来判断用户是否在程序上对菜单中的变量做出了修改.
+//  2.另一种数据是在菜单在工作的时候,使用菜单的用户利用菜单修改了变量的值并SAVE,菜单会
+//  把这些变量值同样压缩保存到存储器中,这些数据为"Pro数据",意思是处理后的数据.下一次系
+//  统重新启动后,若用户没有对菜单中的变量做出修改,那么默认使用该数据.
+//
+//  如果要移植菜单的程序：要做的只是如何把这32位的变量存储到存储器中
+//  在__writeDataToStorage函数和__readDataFromStorage函数都有sector参数,根据该参数
 //  为0或者1时,函数需要实现从存储器中对应读出/写入"Raw数据"或者"Pro数据".
 //-------------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
 //  *依赖外部存储器的函数
 //  @函数   把变量压缩后保存到储存器中
-//  @参数   value:一个外部声明的int32[FLASH_STORE_NUM]数组,带保存数据
+//  @参数   value:一个外部声明的int32[MENU_STORE_NUM]数组,待保存数据
 //          sector:不同的数据存储在不同的存储器 1 = Pro数据, 0 = Raw数据,详细
 //          解释见上面*菜单的储存原理*
 //-------------------------------------------------------------------------
 static void __writeDataToStorage(int32* value, int sector)
 {
-	int save = (sector == 0 ? FLASH_SAVE_RAW_MENU : FLASH_SAVE_PRO_MENU);
+	int save = (sector == 0 ? MENU_STORAGE_RAWDATA : MENU_STORAGE_PRODATA);
 	FLASH_EraseSector(save);
 	
-	for(int temp = 0; temp < FLASH_STORE_NUM; ++temp)
+	for(int temp = 0; temp < MENU_STORE_NUM; ++temp)
 	{ 
-		FLASH_WriteSector(save, FLASH_STORE_BIT * temp, value[temp]);
+		FLASH_WriteSector(save, MENU_STORE_BIT * temp, value[temp]);
 	}
 }
 
 //-------------------------------------------------------------------------
 //  *依赖外部存储器的函数
 //  @函数   从储存器中读出保存的压缩变量
-//  @参数   value:一个外部声明的int32[FLASH_STORE_NUM]数组,用来保存数据
+//  @参数   value:一个外部声明的int32[MENU_STORE_NUM]数组,用来保存数据
 //          sector:不同的数据存储在不同的存储器 1 = Pro数据, 0 = Raw数据,详细
 //          解释见上面*菜单的储存原理*
 //-------------------------------------------------------------------------
 static void __readDataFromStorage(int32* value, int sector)
 {
-	int save = (sector == 0 ? FLASH_SAVE_RAW_MENU : FLASH_SAVE_PRO_MENU);
+	int save = (sector == 0 ? MENU_STORAGE_RAWDATA : MENU_STORAGE_PRODATA);
 	
-	for(int temp = 0; temp < FLASH_STORE_NUM; ++temp)
+	for(int temp = 0; temp < MENU_STORE_NUM; ++temp)
 	{ 
-		value[temp] = flash_read(save, FLASH_STORE_BIT * temp, int32);
+		value[temp] = flash_read(save, MENU_STORE_BIT * temp, int32);
 	}
 }
 
@@ -344,42 +349,48 @@ static uint8 buttonGet(void)
 }
 
 //-------------------------------------------------------------------------
-//  @函数   将VARIABLE_STORE_BIT位的数据压缩为FLASH_STORE_BIT位的数据
-//  @参数   srcVariable:一个外部声明的int16[VARIABLE_STORE_NUM]数组,待解压数据
-//          desVariable:一个外部声明的int32[FLASH_STORE_NUM]数组,保存数据
+//  @函数   将MENU_VARIABLE_BIT位的数据压缩为MENU_STORE_BIT位的数据
+//  @参数   srcVariable:一个外部声明的int16[MENU_VARIABLES_NUM]数组,待解压数据
+//          desVariable:一个外部声明的int32[MENU_STORE_NUM]数组,保存数据
 //-------------------------------------------------------------------------
-static void compressVariable(int16* srcVariable, int32* desVariable)
+static void compressVariable(int16 srcVariable[MENU_VARIABLES_NUM], int32 desVariable[MENU_STORE_NUM])
 {
 	//第一位为符号位，后面其他为数据位
-	int16 signMask = 0x01 << (VARIABLE_STORE_BIT - 1);	//signMask为符号位掩码 
-	int16 valueMask = 0;	//valueMask为数据位掩码 
+	int32 signMask = 0x01 << (MENU_VARIABLE_BIT - 1);	//signMask为符号位掩码 
+	int32 valueMask = 0;	//valueMask为数据位掩码 
 	int16 offset = 0, index = 0;
 	
-	for(int16 temp = 0; temp < VARIABLE_STORE_BIT - 1; ++temp) 
+	for(int16 temp = 0; temp < MENU_VARIABLE_BIT - 1; ++temp) 
 	{
 		valueMask <<= 1;
 		valueMask |= 0x01; 
 	}
-	int16 wholeMask = valueMask | signMask;
+	int32 wholeMask = valueMask | signMask;
 	
-	for(int16 temp = 0; temp < VARIABLE_STORE_NUM; ++temp) 
+	for(int16 temp = 0; temp < MENU_VARIABLES_NUM; ++temp) 
 	{
-		int16 compressedValue = menuAbs(srcVariable[temp]) & valueMask; //取出数据位 
+		int32 compressedValue = menuAbs(srcVariable[temp]) & valueMask; //取出数据位 
 		if(srcVariable[temp] < 0)  compressedValue |= signMask; //取出符号位 
 		
-		if(offset + VARIABLE_STORE_BIT <= FLASH_STORE_BIT) //如果没有溢出 
+		if(offset + MENU_VARIABLE_BIT < MENU_STORE_BIT) //如果没有溢出 
 		{
-			desVariable[index] |= compressedValue << offset; //将 VARIABLE_STORE_BIT 位的数据压缩放到32位的变量中 
-			offset += VARIABLE_STORE_BIT; 
+			desVariable[index] |= compressedValue << offset; //将 MENU_VARIABLE_BIT 位的数据压缩放到32位的变量中 
+			offset += MENU_VARIABLE_BIT;
 		}
-		else //如果溢出，把11位变量分割后分别存储在不同的32位数据中 surplus|remains
+		else if(offset + MENU_VARIABLE_BIT == MENU_STORE_BIT)
 		{
-			int16 surplus = offset + VARIABLE_STORE_BIT - FLASH_STORE_BIT; 	//计算surplus的位数
-			int16 remains =  VARIABLE_STORE_BIT - surplus;			//计算remains的位数
-			int16 wholeRemainsMask = (uint16)wholeMask >> surplus;			//计算remains数据掩码
-			int16 wholeSurplusMask = (uint16)wholeMask >> remains;			//计算surplus数据掩码
-			int16 compressedRemainsValue = compressedValue & wholeRemainsMask; //计算remains部分数据
-			int16 compressedSurplusValue = ((uint16)compressedValue >> remains) & wholeSurplusMask; //计算surplus部分数据
+			desVariable[index] |= compressedValue << offset; //将 MENU_VARIABLE_BIT 位的数据压缩放到32位的变量中 
+			offset = 0;
+			++index;
+		}
+		else //如果溢出，把 MENU_VARIABLE_BIT 位变量分割后分别存储在不同的32位数据中 surplus|remains
+		{
+			int16 surplus = offset + MENU_VARIABLE_BIT - MENU_STORE_BIT; //计算surplus的位数
+			int16 remains = MENU_VARIABLE_BIT - surplus;                 //计算remains的位数
+			int32 wholeRemainsMask = (uint32)wholeMask >> surplus;       //计算remains数据掩码
+			int32 wholeSurplusMask = (uint32)wholeMask >> remains;       //计算surplus数据掩码
+			int32 compressedRemainsValue = compressedValue & wholeRemainsMask; //计算remains部分数据
+			int32 compressedSurplusValue = ((uint32)compressedValue >> remains) & wholeSurplusMask; //计算surplus部分数据
 			
 			desVariable[index] |= 	compressedRemainsValue << offset; //将remains部分放到32位的变量中
 			desVariable[++index] |= compressedSurplusValue; //将surplus部分放到下一个32位的变量中
@@ -389,42 +400,48 @@ static void compressVariable(int16* srcVariable, int32* desVariable)
 }
 
 //-------------------------------------------------------------------------
-//  @函数   将FLASH_STORE_BIT位的数据解压为VARIABLE_STORE_BIT位的数据
-//  @参数   srcVariable:一个外部声明的int32[FLASH_STORE_NUM]数组,待解压数据
-//          desVariable:一个外部声明的int16[VARIABLE_STORE_NUM]数组,保存数据
+//  @函数   将MENU_STORE_BIT位的数据解压为MENU_VARIABLE_BIT位的数据
+//  @参数   srcVariable:一个外部声明的int32[MENU_STORE_NUM]数组,待解压数据
+//          desVariable:一个外部声明的int16[MENU_VARIABLES_NUM]数组,保存数据
 //-------------------------------------------------------------------------
-static void decompressVariable(int32* srcVariable, int16* desVariable)
+static void decompressVariable(int32 srcVariable[MENU_STORE_NUM], int16 desVariable[MENU_VARIABLES_NUM])
 {
 	//第一位为符号位，后面其他为数据位
-	int16 signMask = 0x01 << (VARIABLE_STORE_BIT - 1);	//signMask为符号位掩码 
-	int16 valueMask = 0;	//valueMask为数据位掩码 
+	int32 signMask = 0x01 << (MENU_VARIABLE_BIT - 1);	//signMask为符号位掩码 
+	int32 valueMask = 0;	//valueMask为数据位掩码 
 	int16 offset = 0, index = 0;
 	
-	for(int16 temp = 0; temp < VARIABLE_STORE_BIT - 1; ++temp) 
+	for(int16 temp = 0; temp < MENU_VARIABLE_BIT - 1; ++temp) 
 	{
 		valueMask <<= 1;
 		valueMask |= 0x01; 
 	}
-	int16 wholeMask = valueMask | signMask;
+	int32 wholeMask = valueMask | signMask;
 	
-	for(int16 temp = 0; temp < VARIABLE_STORE_NUM; ++temp)
+	for(int16 temp = 0; temp < MENU_VARIABLES_NUM; ++temp)
 	{
-		int16 decompressedValue = 0;
+		int32 decompressedValue = 0;
 		
-		if(offset + VARIABLE_STORE_BIT <= FLASH_STORE_BIT) //如果没有溢出 
+		if(offset + MENU_VARIABLE_BIT < MENU_STORE_BIT) //如果没有溢出 
 		{
-			decompressedValue = ((uint32)srcVariable[index] >> offset) & wholeMask; //将32位的变量解压放到 VARIABLE_STORE_BIT 位的数据中 
-			offset += VARIABLE_STORE_BIT; 
+			decompressedValue = ((uint32)srcVariable[index] >> offset) & wholeMask; //将32位的变量解压放到 MENU_VARIABLE_BIT 位的数据中 
+			offset += MENU_VARIABLE_BIT;
 		}
-		else //如果溢出，把分别存储在不同的32位数据整合到 VARIABLE_STORE_BIT 位变量 surplus|remains
+		else if(offset + MENU_VARIABLE_BIT == MENU_STORE_BIT)
 		{
-			int16 surplus = offset + VARIABLE_STORE_BIT - FLASH_STORE_BIT; 	//计算surplus的位数
-			int16 remains =  VARIABLE_STORE_BIT - surplus;			//计算remains的位数
-			int16 wholeRemainsMask = (uint16)wholeMask >> surplus;			//计算remains数据掩码
-			int16 wholeSurplusMask = (uint16)wholeMask >> remains;			//计算surplus数据掩码
+			decompressedValue = ((uint32)srcVariable[index] >> offset) & wholeMask; //将32位的变量解压放到 MENU_VARIABLE_BIT 位的数据中
+			offset = 0;
+			++index;
+		}
+		else //如果溢出，把分别存储在不同的32位数据整合到 MENU_VARIABLE_BIT 位变量 surplus|remains
+		{
+			int16 surplus = offset + MENU_VARIABLE_BIT - MENU_STORE_BIT; //计算surplus的位数
+			int16 remains = MENU_VARIABLE_BIT - surplus;                 //计算remains的位数
+			int32 wholeRemainsMask = (uint32)wholeMask >> surplus;       //计算remains数据掩码
+			int32 wholeSurplusMask = (uint32)wholeMask >> remains;       //计算surplus数据掩码
 			
-			int16 decompressedRemainsValue = ((uint32)srcVariable[index] >> offset) & wholeRemainsMask; //将remains部分从32位的变量取出 
-			int16 decompressedSurplusValue =  srcVariable[++index] & wholeSurplusMask; //将surplus部分从下一个32位的变量取出 
+			int32 decompressedRemainsValue = ((uint32)srcVariable[index] >> offset) & wholeRemainsMask; //将remains部分从32位的变量取出 
+			int32 decompressedSurplusValue =  srcVariable[++index] & wholeSurplusMask; //将surplus部分从下一个32位的变量取出 
 			offset = surplus;
 			decompressedValue = decompressedSurplusValue << remains | decompressedRemainsValue; //组合数据 
 		}
@@ -476,13 +493,13 @@ static int16 readSingleVariableFromAddress(void* addr, VariableTypeDef type)
 
 //-------------------------------------------------------------------------
 //  @函数   从存储器中读出所有被压缩的数据并解压
-//  @参数   value:一个外部声明的int16[VARIABLE_STORE_NUM]数组,用来保存数据
+//  @参数   value:一个外部声明的int16[MENU_VARIABLES_NUM]数组,用来保存数据
 //          sector:不同的数据存储在不同的存储器 1 = Pro数据, 0 = Raw数据,详细
 //          解释见上面*菜单的储存原理*
 //-------------------------------------------------------------------------
 static void readAllVariablesFormStorage(int16* value, int sector)
 {
-	int32 compressedValue[FLASH_STORE_NUM] = {0};
+	int32 compressedValue[MENU_STORE_NUM] = {0};
 	__readDataFromStorage(compressedValue, sector);
 	decompressVariable(compressedValue, value);
 }
@@ -516,15 +533,15 @@ static void writeSingleVariableToAddress(void* addr, VariableTypeDef type, int16
 //-------------------------------------------------------------------------
 //  @函数		将数组中的全部数据保存到对应的菜单变量内存地址中
 //  @参数		menu:菜单结构体指针
-//          value:一个外部声明的int16[VARIABLE_STORE_NUM]数组,待存储的数据
+//          value:一个外部声明的int16[MENU_VARIABLES_NUM]数组,待存储的数据
 //-------------------------------------------------------------------------
 static void writeAllVariablesToAddress(Menu_Unit* menu, int16* value)
 {
 	int index = 0;
-	for(int alpha = 0; alpha < MENU_UNITS_MAX; ++alpha)
+	for(int alpha = 0; alpha < MENU_UNITS_NUM; ++alpha)
 	{
 		if(menu[alpha].UintTitle == 0) continue;
-		for(int beta = 0; (beta < UNIT_VARIABLES_MAX); ++beta)
+		for(int beta = 0; (beta < MENU_UNIT_VARIABLES_NUM); ++beta)
 		{
 			if(menu[alpha].VariableType[beta] != VariableType_Void)
 			{
@@ -537,13 +554,13 @@ static void writeAllVariablesToAddress(Menu_Unit* menu, int16* value)
 
 //-------------------------------------------------------------------------
 //  @函数		将数组中的全部数据经过压缩后存储到存储器中
-//  @参数		value:一个外部声明的int16[VARIABLE_STORE_NUM]数组,待存储的数据
+//  @参数		value:一个外部声明的int16[MENU_VARIABLES_NUM]数组,待存储的数据
 //          sector:不同的数据存储在不同的存储器 1 = Pro数据, 0 = Raw数据,详细
 //          解释见上面*菜单的储存原理*
 //-------------------------------------------------------------------------
 static void writeAllVariablesToStorage(int16* value, int sector)
 {
-	int32 compressedValue[FLASH_STORE_NUM] = {0};
+	int32 compressedValue[MENU_STORE_NUM] = {0};
 	compressVariable(value, compressedValue);
 	__writeDataToStorage(compressedValue, sector);
 }
@@ -551,15 +568,15 @@ static void writeAllVariablesToStorage(int16* value, int sector)
 //-------------------------------------------------------------------------
 //  @函数		将菜单中所有变量的值全部整合到一个数组中
 //  @参数		menu:菜单结构体指针
-//          value:一个外部声明的int16[VARIABLE_STORE_NUM]数组,用来保存数据
+//          value:一个外部声明的int16[MENU_VARIABLES_NUM]数组,用来保存数据
 //-------------------------------------------------------------------------
 static void collectVariablesValue(Menu_Unit* menu, int16* value)
 {
 	int index = 0;
-	for(int alpha = 0; alpha < MENU_UNITS_MAX; ++alpha)
+	for(int alpha = 0; alpha < MENU_UNITS_NUM; ++alpha)
 	{
 		if(menu[alpha].UintTitle == 0) continue;
-		for(int beta = 0; (beta < UNIT_VARIABLES_MAX); ++beta)
+		for(int beta = 0; (beta < MENU_UNIT_VARIABLES_NUM); ++beta)
 		{
 			if(menu[alpha].VariableType[beta] != VariableType_Void)
 			{
@@ -578,14 +595,14 @@ static void collectVariablesValue(Menu_Unit* menu, int16* value)
 static uint8 checkIfVariablesChanged(Menu_Unit* menu)
 {
 	uint8 ifChanged = 0;
-	int16 copyVariableValue[VARIABLE_STORE_NUM] = {0};
-	int16 storedRawValue[VARIABLE_STORE_NUM] = {0};
+	int16 copyVariableValue[MENU_VARIABLES_NUM] = {0};
+	int16 storedRawValue[MENU_VARIABLES_NUM] = {0};
 	
 	collectVariablesValue(menu, copyVariableValue);
 	readAllVariablesFormStorage(storedRawValue, 0);
 	
 	//对比变量的值,检测是否改变
-	for(int temp = 0; temp < VARIABLE_STORE_NUM; ++temp)
+	for(int temp = 0; temp < MENU_VARIABLES_NUM; ++temp)
 	{ 
 		if(copyVariableValue[temp] != storedRawValue[temp])
 		{
@@ -605,7 +622,7 @@ static uint8 checkIfVariablesChanged(Menu_Unit* menu)
 //-------------------------------------------------------------------------
 static void coverVariablesToAddressOrStorage(Menu_Unit* menu, uint8 direction)
 {
-	int16 storedProValue[VARIABLE_STORE_NUM] = {0}, copyVariableValue[VARIABLE_STORE_NUM] = {0};
+	int16 storedProValue[MENU_VARIABLES_NUM] = {0}, copyVariableValue[MENU_VARIABLES_NUM] = {0};
 	readAllVariablesFormStorage(storedProValue, 1);
 	collectVariablesValue(menu, copyVariableValue);
 	
@@ -653,8 +670,8 @@ void Menu_Init(Menu menu)
 	
 	ifChanged = checkIfVariablesChanged(menu);
 		
-#if ENABLE_WARNPAGE //如果ENABLE警告页
-	if(ifChanged == 0) //如果程序没有对变量值进行修改,则默认使用保存在FLASH中的值作为各变量的值
+#if MENU_ENABLE_WARNPAGE //如果ENABLE警告页
+	if(ifChanged == 0) //如果程序没有对变量值进行修改,则默认使用保存在存储器中的值作为各变量的值
 	{
 		coverVariablesToAddressOrStorage(menu, ifChanged);
 		pageHandle = &homePageHandle;
@@ -692,8 +709,8 @@ static uint8 homePageHandle(uint8 buttonFlag)
 		if(buttonFlag & ButtonFlag_Left) homePageCursor -= 1;
 		if(buttonFlag & ButtonFlag_Right) homePageCursor += 1;
 		
-		if(homePageCursor < 0) homePageCursor += (MENU_UNITS_MAX + 1);
-		if(homePageCursor >= (MENU_UNITS_MAX + 1)) homePageCursor -= (MENU_UNITS_MAX + 1);
+		if(homePageCursor < 0) homePageCursor += (MENU_UNITS_NUM + 1);
+		if(homePageCursor >= (MENU_UNITS_NUM + 1)) homePageCursor -= (MENU_UNITS_NUM + 1);
 	}
 	
 	if(buttonFlag & ButtonFlag_Confirm)
@@ -726,7 +743,7 @@ static uint8 unitPageHandle(uint8 buttonFlag)
 {
 	static uint8 confirmFlag = 0;
 	static uint8 isInited = 0;
-	static int16 tempVariablesValue[UNIT_VARIABLES_MAX] = {0};
+	static int16 tempVariablesValue[MENU_UNIT_VARIABLES_NUM] = {0};
 	static Menu_Unit* currentMenuUint;
 	
 	if(isInited == 0) //界面初始化,只在进入该界面时执行一次,在退出界面后置零
@@ -735,7 +752,7 @@ static uint8 unitPageHandle(uint8 buttonFlag)
 		unitPageCursor = -1;
 		currentMenuUint = &menuPoint[homePageCursor - 1]; //当前的菜单单元的指针
 		
-		for(int temp = 0; temp < UNIT_VARIABLES_MAX; ++temp)
+		for(int temp = 0; temp < MENU_UNIT_VARIABLES_NUM; ++temp)
 		{
 			tempVariablesValue[temp] = readSingleVariableFromAddress(currentMenuUint->VariableAddr[temp], currentMenuUint->VariableType[temp]);
 			if(currentMenuUint->VariableType[temp] != VariableType_Void && unitPageCursor == -1) //让光标指向第一个变量
@@ -758,10 +775,10 @@ static uint8 unitPageHandle(uint8 buttonFlag)
 				if(unitPageCursor < 0) unitPageCursor += MENU_LINE_MAX * MENU_VARIABLE_PERLINE;
 				if(unitPageCursor >= MENU_LINE_MAX * MENU_VARIABLE_PERLINE) unitPageCursor -= MENU_LINE_MAX * MENU_VARIABLE_PERLINE;
 				
-				while(unitPageCursor / MENU_VARIABLE_PERLINE >= UNIT_VARIABLES_MAX
+				while(unitPageCursor / MENU_VARIABLE_PERLINE >= MENU_UNIT_VARIABLES_NUM
 					&& unitPageCursor / MENU_VARIABLE_PERLINE < (MENU_LINE_BACK_BUTTON > MENU_LINE_SAVE_BUTTON ? MENU_LINE_SAVE_BUTTON : MENU_LINE_BACK_BUTTON) - 1)
 					unitPageCursor -= MENU_VARIABLE_PERLINE;
-				while(unitPageCursor / MENU_VARIABLE_PERLINE < UNIT_VARIABLES_MAX
+				while(unitPageCursor / MENU_VARIABLE_PERLINE < MENU_UNIT_VARIABLES_NUM
 					&& unitPageCursor / MENU_VARIABLE_PERLINE >= 0
 					&& currentMenuUint->VariableType[unitPageCursor / 2] == VariableType_Void)
 					unitPageCursor -= MENU_VARIABLE_PERLINE;
@@ -772,11 +789,11 @@ static uint8 unitPageHandle(uint8 buttonFlag)
 				if(unitPageCursor < 0) unitPageCursor += MENU_LINE_MAX * MENU_VARIABLE_PERLINE;
 				if(unitPageCursor >= MENU_LINE_MAX * MENU_VARIABLE_PERLINE) unitPageCursor -= MENU_LINE_MAX * MENU_VARIABLE_PERLINE;
 				
-				while(unitPageCursor / MENU_VARIABLE_PERLINE < UNIT_VARIABLES_MAX
+				while(unitPageCursor / MENU_VARIABLE_PERLINE < MENU_UNIT_VARIABLES_NUM
 					&& unitPageCursor / MENU_VARIABLE_PERLINE >= 0
 					&& currentMenuUint->VariableType[unitPageCursor / 2] == VariableType_Void)
 					unitPageCursor += MENU_VARIABLE_PERLINE;
-				while(unitPageCursor / MENU_VARIABLE_PERLINE >= UNIT_VARIABLES_MAX
+				while(unitPageCursor / MENU_VARIABLE_PERLINE >= MENU_UNIT_VARIABLES_NUM
 					&& unitPageCursor / MENU_VARIABLE_PERLINE < (MENU_LINE_BACK_BUTTON > MENU_LINE_SAVE_BUTTON ? MENU_LINE_SAVE_BUTTON : MENU_LINE_BACK_BUTTON) - 1)
 					unitPageCursor += MENU_VARIABLE_PERLINE;
 			}
@@ -790,7 +807,7 @@ static uint8 unitPageHandle(uint8 buttonFlag)
 				if(temp & 0x01) //调整数值到tempVariablesValue中
 				{
 					int serialPressed = 1;
-					if(buttonFlag & ButtonFlag_SerialPressed) serialPressed = 2; //如果判断为连按,则单次调整的数值翻倍
+					if(buttonFlag & ButtonFlag_SerialPressed) serialPressed = 4; //如果判断为连按,则单次调整的数值翻倍
 					VariableTypeDef type = currentMenuUint->VariableType[unitPageCursor / MENU_VARIABLE_PERLINE];
 					int16 adjust = Adjust[type].AdjustValue[index]; //根据当前变量的类型,在Adjust结构体中获取单次调整的数值
 					tempVariablesValue[unitPageCursor / MENU_VARIABLE_PERLINE] += adjust * serialPressed;
@@ -808,18 +825,18 @@ static uint8 unitPageHandle(uint8 buttonFlag)
 		{
 			if(unitPageCursor == (MENU_LINE_SAVE_BUTTON - 1) * MENU_VARIABLE_PERLINE) //如果光标指向SAVE
 			{
-				for(int temp = 0; temp < UNIT_VARIABLES_MAX; ++temp) //将tempVariablesValue保存到变量地址中
+				for(int temp = 0; temp < MENU_UNIT_VARIABLES_NUM; ++temp) //将tempVariablesValue保存到变量地址中
 				{
 					writeSingleVariableToAddress(currentMenuUint->VariableAddr[temp], currentMenuUint->VariableType[temp], tempVariablesValue[temp]);
 				}
-				int16 copyVariableValue[VARIABLE_STORE_NUM] = {0};
+				int16 copyVariableValue[MENU_VARIABLES_NUM] = {0};
 				collectVariablesValue(menuPoint, copyVariableValue);
 				writeAllVariablesToStorage(copyVariableValue, 1); //将变量值保存到储存器中
 			}
 			isInited = 0;
 			pageHandle = &homePageHandle; //退出该界面,转到菜单主界面
 		}
-		else if(unitPageCursor < UNIT_VARIABLES_MAX * MENU_VARIABLE_PERLINE) //如果光标指向变量
+		else if(unitPageCursor < MENU_UNIT_VARIABLES_NUM * MENU_VARIABLE_PERLINE) //如果光标指向变量
 		{
 			confirmFlag ^= 1;
 		}
