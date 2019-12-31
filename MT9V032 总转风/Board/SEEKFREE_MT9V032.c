@@ -34,7 +34,6 @@
 
 
 #include "SEEKFREE_MT9V032.h"
-#include "ImageProcess.h"
 
 
 

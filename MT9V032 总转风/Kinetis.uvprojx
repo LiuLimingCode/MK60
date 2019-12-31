@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>MK60DN</Define>
               <Undefine></Undefine>
-              <IncludePath>.\Chip\inc;.\Startup\CoreSupport;.\Startup\DeviceSupport;.\User</IncludePath>
+              <IncludePath>.\Chip\inc;.\Startup\CoreSupport;.\Startup\DeviceSupport;.\User;.\Board</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -395,24 +395,29 @@
               <FilePath>.\User\main.c</FilePath>
             </File>
             <File>
-              <FileName>MK60_oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_oled.c</FilePath>
-            </File>
-            <File>
               <FileName>ImageProcess.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\ImageProcess.c</FilePath>
             </File>
-            <File>
-              <FileName>SEEKFREE_MT9V032.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\SEEKFREE_MT9V032.c</FilePath>
-            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Board</GroupName>
+          <Files>
             <File>
               <FileName>MK60_myspi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\MK60_myspi.c</FilePath>
+              <FilePath>.\Board\MK60_myspi.c</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_oled.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Board\MK60_oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>SEEKFREE_MT9V032.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Board\SEEKFREE_MT9V032.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -965,24 +970,29 @@
               <FilePath>.\User\main.c</FilePath>
             </File>
             <File>
-              <FileName>MK60_oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_oled.c</FilePath>
-            </File>
-            <File>
               <FileName>ImageProcess.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\ImageProcess.c</FilePath>
             </File>
-            <File>
-              <FileName>SEEKFREE_MT9V032.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\SEEKFREE_MT9V032.c</FilePath>
-            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Board</GroupName>
+          <Files>
             <File>
               <FileName>MK60_myspi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\MK60_myspi.c</FilePath>
+              <FilePath>.\Board\MK60_myspi.c</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_oled.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Board\MK60_oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>SEEKFREE_MT9V032.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Board\SEEKFREE_MT9V032.c</FilePath>
             </File>
           </Files>
         </Group>

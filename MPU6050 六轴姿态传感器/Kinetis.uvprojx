@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>MK60DN</Define>
               <Undefine></Undefine>
-              <IncludePath>.\Chip\inc;.\Startup\CoreSupport;.\Startup\DeviceSupport;.\User</IncludePath>
+              <IncludePath>.\Chip\inc;.\Startup\CoreSupport;.\Startup\DeviceSupport;.\User;.\Board</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -394,35 +394,40 @@
               <FileType>1</FileType>
               <FilePath>.\User\main.c</FilePath>
             </File>
-            <File>
-              <FileName>MK60_oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_oled.c</FilePath>
-            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Board</GroupName>
+          <Files>
             <File>
               <FileName>inv_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\inv_mpu.c</FilePath>
+              <FilePath>.\Board\inv_mpu.c</FilePath>
             </File>
             <File>
               <FileName>inv_mpu_dmp_motion_driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\inv_mpu_dmp_motion_driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_mpu6050.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_mpu6050.c</FilePath>
+              <FilePath>.\Board\inv_mpu_dmp_motion_driver.c</FilePath>
             </File>
             <File>
               <FileName>MK60_myiic.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>.\User\MK60_myiic.cpp</FilePath>
+              <FilePath>.\Board\MK60_myiic.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_mpu6050.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Board\MK60_mpu6050.c</FilePath>
             </File>
             <File>
               <FileName>MK60_myspi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\MK60_myspi.c</FilePath>
+              <FilePath>.\Board\MK60_myspi.c</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_oled.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Board\MK60_oled.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -974,35 +979,40 @@
               <FileType>1</FileType>
               <FilePath>.\User\main.c</FilePath>
             </File>
-            <File>
-              <FileName>MK60_oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_oled.c</FilePath>
-            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Board</GroupName>
+          <Files>
             <File>
               <FileName>inv_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\inv_mpu.c</FilePath>
+              <FilePath>.\Board\inv_mpu.c</FilePath>
             </File>
             <File>
               <FileName>inv_mpu_dmp_motion_driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\inv_mpu_dmp_motion_driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>MK60_mpu6050.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\MK60_mpu6050.c</FilePath>
+              <FilePath>.\Board\inv_mpu_dmp_motion_driver.c</FilePath>
             </File>
             <File>
               <FileName>MK60_myiic.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>.\User\MK60_myiic.cpp</FilePath>
+              <FilePath>.\Board\MK60_myiic.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_mpu6050.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Board\MK60_mpu6050.c</FilePath>
             </File>
             <File>
               <FileName>MK60_myspi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\MK60_myspi.c</FilePath>
+              <FilePath>.\Board\MK60_myspi.c</FilePath>
+            </File>
+            <File>
+              <FileName>MK60_oled.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Board\MK60_oled.c</FilePath>
             </File>
           </Files>
         </Group>

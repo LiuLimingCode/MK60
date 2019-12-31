@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>MK60DN</Define>
               <Undefine></Undefine>
-              <IncludePath>.\Chip\inc;.\Startup\CoreSupport;.\Startup\DeviceSupport;.\User</IncludePath>
+              <IncludePath>.\Chip\inc;.\Startup\CoreSupport;.\Startup\DeviceSupport;.\User;.\Board</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -395,6 +395,9 @@
               <FilePath>.\User\main.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>Board</GroupName>
         </Group>
         <Group>
           <GroupName>Chip</GroupName>
@@ -945,6 +948,9 @@
               <FilePath>.\User\main.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>Board</GroupName>
         </Group>
         <Group>
           <GroupName>Chip</GroupName>
