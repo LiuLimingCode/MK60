@@ -13,3 +13,4 @@
 JLinkLog.txt
 *.dbgconf
 EventRecorderStub.scvd
+*.iex
