@@ -9,6 +9,7 @@
 *.lnp
 *.hex
 *.dep
+*.__i
 *.DELL
 JLinkLog.txt
 *.dbgconf
